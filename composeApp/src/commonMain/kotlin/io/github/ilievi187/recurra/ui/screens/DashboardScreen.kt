@@ -2,6 +2,7 @@ package io.github.ilievi187.recurra.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,17 +16,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.EventRepeat
-import androidx.compose.material.icons.rounded.Paid
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -43,9 +44,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.ilievi187.recurra.domain.FinanceCalculator
+import io.github.ilievi187.recurra.domain.ThemePreference
 import io.github.ilievi187.recurra.domain.UpcomingRenewal
+import io.github.ilievi187.recurra.ui.components.AmbientOrbsBackdrop
+import io.github.ilievi187.recurra.ui.components.AnimatedCurrencyText
+import io.github.ilievi187.recurra.ui.components.CategoryAvatar
 import io.github.ilievi187.recurra.ui.components.CategoryDonutChart
 import io.github.ilievi187.recurra.ui.state.RecurraUiState
+import io.github.ilievi187.recurra.ui.theme.RecurraPalette
 
 @Composable
 fun DashboardScreen(
@@ -59,9 +65,15 @@ fun DashboardScreen(
 ) {
     val summary = state.summary
     val base = state.vault.settings.baseCurrency
+    val isDark = when (state.vault.settings.themePreference) {
+        ThemePreference.DARK -> true
+        ThemePreference.LIGHT -> false
+        ThemePreference.SYSTEM -> isSystemInDarkTheme()
+    }
 
     if (state.vault.subscriptions.isEmpty() && state.vault.warranties.isEmpty()) {
         EmptyDashboardState(
+            isDark = isDark,
             onAddSubscription = onAddSubscription,
             onLoadDemoData = onLoadDemoData,
         )
@@ -71,83 +83,96 @@ fun DashboardScreen(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
+        // Aurora Hero Card
         item {
-            Row(
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Column {
-                    Text("Overview", style = MaterialTheme.typography.headlineMedium)
-                    Text(
-                        text = "${summary.activeCount} active · ${summary.pausedCount} paused · ${summary.activeWarrantiesCount} active warranties",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                if (isWide) {
-                    Button(onClick = onAddSubscription) {
-                        Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Add Subscription")
-                    }
-                }
-            }
-        }
-
-        // KPI Row(s)
-        item {
-            val kpis = listOf(
-                KpiData(
-                    title = "Monthly Burn",
-                    value = FinanceCalculator.formatCurrency(summary.monthlyTotal, base),
-                    subtitle = "Normalized across all cycles",
-                    icon = Icons.Rounded.Paid,
-                    accent = MaterialTheme.colorScheme.primary,
-                ),
-                KpiData(
-                    title = "Yearly Projection",
-                    value = FinanceCalculator.formatCurrency(summary.yearlyTotal, base),
-                    subtitle = "${summary.activeCount} active commitments",
-                    icon = Icons.Rounded.TrendingUp,
-                    accent = MaterialTheme.colorScheme.secondary,
-                ),
-                KpiData(
-                    title = "Due Next 30 Days",
-                    value = FinanceCalculator.formatCurrency(summary.dueNext30DaysTotal, base),
-                    subtitle = "Next 7d: ${FinanceCalculator.formatCurrency(summary.dueNext7DaysTotal, base)}",
-                    icon = Icons.Rounded.EventRepeat,
-                    accent = Color(0xFF0D9488),
-                ),
-                KpiData(
-                    title = "Trials & Warranties",
-                    value = "${summary.trialCount} trials",
-                    subtitle = "${summary.expiringWarrantiesSoonCount} warranties expiring <60d",
-                    icon = if (summary.trialCount > 0) Icons.Rounded.WarningAmber else Icons.Rounded.Shield,
-                    accent = if (summary.trialCount > 0) Color(0xFFEA580C) else Color(0xFF16A34A),
-                ),
-            )
-
-            if (isWide) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(RecurraPalette.heroGradient(isDark)),
                 ) {
-                    kpis.forEach { kpi ->
-                        KpiCard(kpi, modifier = Modifier.weight(1f))
-                    }
-                }
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        KpiCard(kpis[0], modifier = Modifier.weight(1f))
-                        KpiCard(kpis[1], modifier = Modifier.weight(1f))
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        KpiCard(kpis[2], modifier = Modifier.weight(1f))
-                        KpiCard(kpis[3], modifier = Modifier.weight(1f))
+                    AmbientOrbsBackdrop(
+                        primaryGlow = RecurraPalette.Emerald,
+                        secondaryGlow = RecurraPalette.Violet,
+                        modifier = Modifier.matchParentSize(),
+                    )
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(24.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Top,
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(
+                                    text = "MONTHLY RECURRING BURN",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = Color.White.copy(alpha = 0.72f),
+                                )
+                                AnimatedCurrencyText(
+                                    amount = summary.monthlyTotal,
+                                    currencyCode = base,
+                                    style = MaterialTheme.typography.headlineLarge,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.ExtraBold,
+                                )
+                                Text(
+                                    text = "${summary.activeCount} active · ${summary.pausedCount} paused · ${summary.activeWarrantiesCount} warranties protected",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = 0.78f),
+                                )
+                            }
+                            if (isWide) {
+                                Button(
+                                    onClick = onAddSubscription,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = RecurraPalette.Emerald,
+                                        contentColor = Color(0xFF022C22),
+                                    ),
+                                    shape = RoundedCornerShape(12.dp),
+                                ) {
+                                    Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(6.dp))
+                                    Text("Add Subscription", fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+                        }
+
+                        // Glass metric pills
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            HeroPill(
+                                label = "Yearly Projection",
+                                value = FinanceCalculator.formatCurrency(summary.yearlyTotal, base),
+                                icon = Icons.Rounded.TrendingUp,
+                                tint = RecurraPalette.Emerald,
+                                modifier = Modifier.weight(1f),
+                            )
+                            HeroPill(
+                                label = "Due Next 30d",
+                                value = FinanceCalculator.formatCurrency(summary.dueNext30DaysTotal, base),
+                                icon = Icons.Rounded.EventRepeat,
+                                tint = RecurraPalette.Cyan,
+                                modifier = Modifier.weight(1f),
+                            )
+                            HeroPill(
+                                label = if (summary.trialCount > 0) "Active Trials" else "Warranties",
+                                value = if (summary.trialCount > 0) "${summary.trialCount} ending" else "${summary.activeWarrantiesCount} active",
+                                icon = if (summary.trialCount > 0) Icons.Rounded.WarningAmber else Icons.Rounded.Shield,
+                                tint = if (summary.trialCount > 0) RecurraPalette.Amber else RecurraPalette.Violet,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
                     }
                 }
             }
@@ -163,7 +188,6 @@ fun DashboardScreen(
                 ) {
                     UpcomingRenewalsCard(
                         upcoming = summary.upcomingRenewals.take(7),
-                        baseCurrency = base,
                         onMarkPaid = onMarkPaid,
                         onEdit = onEditSubscription,
                         onViewAll = onOpenSubscriptions,
@@ -184,7 +208,6 @@ fun DashboardScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     UpcomingRenewalsCard(
                         upcoming = summary.upcomingRenewals.take(6),
-                        baseCurrency = base,
                         onMarkPaid = onMarkPaid,
                         onEdit = onEditSubscription,
                         onViewAll = onOpenSubscriptions,
@@ -202,53 +225,47 @@ fun DashboardScreen(
     }
 }
 
-private data class KpiData(
-    val title: String,
-    val value: String,
-    val subtitle: String,
-    val icon: ImageVector,
-    val accent: Color,
-)
-
 @Composable
-private fun KpiCard(data: KpiData, modifier: Modifier = Modifier) {
-    Card(
+private fun HeroPill(
+    label: String,
+    value: String,
+    icon: ImageVector,
+    tint: Color,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
         modifier = modifier,
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = Color.White.copy(alpha = 0.09f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.14f)),
     ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(9.dp))
+                    .background(tint.copy(alpha = 0.22f)),
+                contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = data.title,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(data.accent.copy(alpha = 0.14f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(data.icon, contentDescription = null, tint = data.accent, modifier = Modifier.size(18.dp))
-                }
+                Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
             }
-            Text(
-                text = data.value,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = data.subtitle,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Column {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White.copy(alpha = 0.72f),
+                )
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                )
+            }
         }
     }
 }
@@ -262,7 +279,7 @@ fun SectionCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
@@ -284,7 +301,6 @@ fun SectionCard(
 @Composable
 private fun UpcomingRenewalsCard(
     upcoming: List<UpcomingRenewal>,
-    baseCurrency: String,
     onMarkPaid: (String) -> Unit,
     onEdit: (String) -> Unit,
     onViewAll: () -> Unit,
@@ -308,7 +324,6 @@ private fun UpcomingRenewalsCard(
                 upcoming.forEach { item ->
                     UpcomingRow(
                         item = item,
-                        baseCurrency = baseCurrency,
                         onMarkPaid = { onMarkPaid(item.subscription.id) },
                         onEdit = { onEdit(item.subscription.id) },
                     )
@@ -321,14 +336,13 @@ private fun UpcomingRenewalsCard(
 @Composable
 private fun UpcomingRow(
     item: UpcomingRenewal,
-    baseCurrency: String,
     onMarkPaid: () -> Unit,
     onEdit: () -> Unit,
 ) {
     val urgencyColor = when {
-        item.isTrialEnding -> Color(0xFFEA580C)
-        item.daysUntilDue <= 0 -> MaterialTheme.colorScheme.error
-        item.daysUntilDue <= 5 -> Color(0xFFD97706)
+        item.isTrialEnding -> RecurraPalette.Amber
+        item.daysUntilDue <= 0 -> RecurraPalette.Rose
+        item.daysUntilDue <= 5 -> RecurraPalette.Amber
         else -> MaterialTheme.colorScheme.primary
     }
     val dueBadge = when {
@@ -340,8 +354,9 @@ private fun UpcomingRow(
 
     Surface(
         onClick = onEdit,
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)),
     ) {
         Row(
             modifier = Modifier
@@ -349,12 +364,7 @@ private fun UpcomingRow(
                 .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .clip(CircleShape)
-                    .background(Color(item.subscription.category.colorHex)),
-            )
+            CategoryAvatar(category = item.subscription.category, size = 38.dp, iconSize = 19.dp)
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(
@@ -367,13 +377,14 @@ private fun UpcomingRow(
                     )
                     if (item.isTrialEnding) {
                         Surface(
-                            color = Color(0xFFEA580C).copy(alpha = 0.16f),
+                            color = RecurraPalette.Amber.copy(alpha = 0.18f),
                             shape = RoundedCornerShape(6.dp),
                         ) {
                             Text(
                                 text = "TRIAL",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFFEA580C),
+                                color = RecurraPalette.Amber,
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                             )
                         }
@@ -391,16 +402,22 @@ private fun UpcomingRow(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
-                Text(
-                    text = dueBadge,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = urgencyColor,
-                    fontWeight = FontWeight.SemiBold,
-                )
+                Surface(
+                    color = urgencyColor.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(6.dp),
+                ) {
+                    Text(
+                        text = dueBadge,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = urgencyColor,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                    )
+                }
             }
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(6.dp))
             TextButton(onClick = onMarkPaid, contentPadding = PaddingValues(horizontal = 8.dp)) {
-                Icon(Icons.Rounded.CheckCircle, contentDescription = "Mark paid", modifier = Modifier.size(18.dp))
+                Icon(Icons.Rounded.CheckCircle, contentDescription = "Mark paid", tint = RecurraPalette.Emerald, modifier = Modifier.size(20.dp))
             }
         }
     }
@@ -408,6 +425,7 @@ private fun UpcomingRow(
 
 @Composable
 private fun EmptyDashboardState(
+    isDark: Boolean,
     onAddSubscription: () -> Unit,
     onLoadDemoData: () -> Unit,
 ) {
@@ -416,37 +434,65 @@ private fun EmptyDashboardState(
         contentAlignment = Alignment.Center,
     ) {
         Card(
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            shape = RoundedCornerShape(22.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             modifier = Modifier.fillMaxWidth(0.95f),
         ) {
-            Column(
-                modifier = Modifier.padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.EventRepeat,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(48.dp),
+            Box(modifier = Modifier.background(RecurraPalette.heroGradient(isDark))) {
+                AmbientOrbsBackdrop(
+                    primaryGlow = RecurraPalette.Emerald,
+                    secondaryGlow = RecurraPalette.Violet,
+                    modifier = Modifier.matchParentSize(),
                 )
-                Text("Welcome to Recurra", style = MaterialTheme.typography.headlineMedium)
-                Text(
-                    text = "Track subscriptions, recurring bills, free trials, and product warranties 100% offline. Your financial data never leaves your device.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(onClick = onAddSubscription) {
-                        Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Add First Subscription")
+                Column(
+                    modifier = Modifier.padding(36.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(Color.White.copy(alpha = 0.14f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.AutoAwesome,
+                            contentDescription = null,
+                            tint = RecurraPalette.Emerald,
+                            modifier = Modifier.size(34.dp),
+                        )
                     }
-                    OutlinedButton(onClick = onLoadDemoData) {
-                        Text("Explore Sample Data")
+                    Text(
+                        text = "Welcome to Recurra",
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color.White,
+                    )
+                    Text(
+                        text = "Track subscriptions, recurring bills, free trials, and product warranties 100% offline. Your financial data never leaves your device.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White.copy(alpha = 0.82f),
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Button(
+                            onClick = onAddSubscription,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = RecurraPalette.Emerald,
+                                contentColor = Color(0xFF022C22),
+                            ),
+                        ) {
+                            Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Add First Subscription", fontWeight = FontWeight.SemiBold)
+                        }
+                        OutlinedButton(
+                            onClick = onLoadDemoData,
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                        ) {
+                            Text("Explore Sample Data")
+                        }
                     }
                 }
             }

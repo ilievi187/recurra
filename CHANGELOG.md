@@ -2,6 +2,13 @@
 
 All notable changes to **Recurra** are documented in this file.
 
+## [1.2.0] - 2026-11-20
+
+### Changed
+- **Complete UI/UX visual redesign ("Obsidian Aurora" & "Warm Alabaster"):** Replaced the plain blue theme with an emerald, violet, and amber fintech palette, layered surfaces, and subtle ambient gradient hero cards.
+- **Visual Renewal Calendar:** Added seasonal gradient header banner with ambient glow and seasonal icon, category icon badges and daily totals directly inside calendar day cells, animated day selection, and one-click Mark Paid from the calendar.
+- **Smooth Animations & Micro-interactions:** Added animated screen transitions (`AnimatedContent`), animated currency counters, animated donut chart sweep and gradient cashflow bars, and tinted squircle category icon avatars across all screens.
+
 ## [1.1.0] - 2026-11-20
 
 ### Added

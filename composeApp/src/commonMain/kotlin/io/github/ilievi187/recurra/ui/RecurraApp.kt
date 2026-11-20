@@ -1,5 +1,12 @@
 package io.github.ilievi187.recurra.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -10,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.BarChart
@@ -36,7 +45,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,6 +63,7 @@ import io.github.ilievi187.recurra.ui.screens.SubscriptionsScreen
 import io.github.ilievi187.recurra.ui.screens.WarrantiesScreen
 import io.github.ilievi187.recurra.ui.state.AppDestination
 import io.github.ilievi187.recurra.ui.state.RecurraViewModel
+import io.github.ilievi187.recurra.ui.theme.RecurraPalette
 import io.github.ilievi187.recurra.ui.theme.RecurraTheme
 
 @Composable
@@ -78,11 +92,12 @@ fun RecurraApp(
 
             Scaffold(
                 snackbarHost = { SnackbarHost(snackbarHostState) },
+                containerColor = MaterialTheme.colorScheme.background,
                 bottomBar = {
                     if (!isWide) {
                         Column {
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                            NavigationBar {
+                            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                                 AppDestination.entries.forEach { dest ->
                                     NavigationBarItem(
                                         selected = state.destination == dest,
@@ -114,13 +129,36 @@ fun RecurraApp(
                 ) {
                     if (isWide) {
                         NavigationRail(
+                            containerColor = MaterialTheme.colorScheme.surface,
                             header = {
-                                Column(modifier = Modifier.padding(vertical = 12.dp)) {
+                                Column(
+                                    modifier = Modifier.padding(vertical = 14.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(
+                                                Brush.linearGradient(
+                                                    listOf(RecurraPalette.Emerald, RecurraPalette.Violet),
+                                                ),
+                                            ),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Text(
+                                            text = "R",
+                                            style = MaterialTheme.typography.titleLarge,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            color = Color.White,
+                                        )
+                                    }
+                                    Spacer(Modifier.height(6.dp))
                                     Text(
                                         text = "Recurra",
-                                        style = MaterialTheme.typography.titleMedium,
+                                        style = MaterialTheme.typography.labelMedium,
                                         fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                     )
                                 }
                             },
@@ -140,60 +178,70 @@ fun RecurraApp(
                     }
 
                     Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                        when (state.destination) {
-                            AppDestination.DASHBOARD -> DashboardScreen(
-                                state = state,
-                                isWide = isWide,
-                                onAddSubscription = viewModel::openAddSubscriptionDialog,
-                                onLoadDemoData = viewModel::loadDemoData,
-                                onMarkPaid = viewModel::markSubscriptionPaid,
-                                onEditSubscription = { id ->
-                                    state.vault.subscriptions.firstOrNull { it.id == id }
-                                        ?.let(viewModel::openEditSubscriptionDialog)
-                                },
-                                onOpenSubscriptions = { viewModel.selectDestination(AppDestination.SUBSCRIPTIONS) },
-                            )
+                        AnimatedContent(
+                            targetState = state.destination,
+                            transitionSpec = {
+                                (fadeIn(tween(220)) + slideInVertically(tween(220)) { it / 24 }) togetherWith
+                                    fadeOut(tween(150))
+                            },
+                            label = "screenTransition",
+                        ) { destination ->
+                            when (destination) {
+                                AppDestination.DASHBOARD -> DashboardScreen(
+                                    state = state,
+                                    isWide = isWide,
+                                    onAddSubscription = viewModel::openAddSubscriptionDialog,
+                                    onLoadDemoData = viewModel::loadDemoData,
+                                    onMarkPaid = viewModel::markSubscriptionPaid,
+                                    onEditSubscription = { id ->
+                                        state.vault.subscriptions.firstOrNull { it.id == id }
+                                            ?.let(viewModel::openEditSubscriptionDialog)
+                                    },
+                                    onOpenSubscriptions = { viewModel.selectDestination(AppDestination.SUBSCRIPTIONS) },
+                                )
 
-                            AppDestination.SUBSCRIPTIONS -> SubscriptionsScreen(
-                                state = state,
-                                isWide = isWide,
-                                onSearchChange = viewModel::updateSearch,
-                                onStatusFilter = viewModel::filterByStatus,
-                                onCategoryFilter = viewModel::filterByCategory,
-                                onSortChange = viewModel::updateSort,
-                                onAdd = viewModel::openAddSubscriptionDialog,
-                                onEdit = viewModel::openEditSubscriptionDialog,
-                                onMarkPaid = viewModel::markSubscriptionPaid,
-                                onToggleStatus = viewModel::toggleSubscriptionStatus,
-                                onDelete = viewModel::deleteSubscription,
-                                onOpenUrl = viewModel::openExternalUrl,
-                            )
+                                AppDestination.SUBSCRIPTIONS -> SubscriptionsScreen(
+                                    state = state,
+                                    isWide = isWide,
+                                    onSearchChange = viewModel::updateSearch,
+                                    onStatusFilter = viewModel::filterByStatus,
+                                    onCategoryFilter = viewModel::filterByCategory,
+                                    onSortChange = viewModel::updateSort,
+                                    onAdd = viewModel::openAddSubscriptionDialog,
+                                    onEdit = viewModel::openEditSubscriptionDialog,
+                                    onMarkPaid = viewModel::markSubscriptionPaid,
+                                    onToggleStatus = viewModel::toggleSubscriptionStatus,
+                                    onDelete = viewModel::deleteSubscription,
+                                    onOpenUrl = viewModel::openExternalUrl,
+                                )
 
-                            AppDestination.CALENDAR -> CalendarScreen(
-                                state = state,
-                                onEditSubscription = viewModel::openEditSubscriptionDialog,
-                            )
+                                AppDestination.CALENDAR -> CalendarScreen(
+                                    state = state,
+                                    onEditSubscription = viewModel::openEditSubscriptionDialog,
+                                    onMarkPaid = viewModel::markSubscriptionPaid,
+                                )
 
-                            AppDestination.WARRANTIES -> WarrantiesScreen(
-                                state = state,
-                                onAdd = viewModel::openAddWarrantyDialog,
-                                onEdit = viewModel::openEditWarrantyDialog,
-                                onDelete = viewModel::deleteWarranty,
-                            )
+                                AppDestination.WARRANTIES -> WarrantiesScreen(
+                                    state = state,
+                                    onAdd = viewModel::openAddWarrantyDialog,
+                                    onEdit = viewModel::openEditWarrantyDialog,
+                                    onDelete = viewModel::deleteWarranty,
+                                )
 
-                            AppDestination.ANALYTICS -> AnalyticsScreen(state = state)
+                                AppDestination.ANALYTICS -> AnalyticsScreen(state = state)
 
-                            AppDestination.SETTINGS -> SettingsScreen(
-                                state = state,
-                                onUpdateSettings = viewModel::updateSettings,
-                                onExportCsv = viewModel::exportCsvToDisk,
-                                onImportCsv = viewModel::importCsvFromPath,
-                                onExportEncryptedBackup = viewModel::exportEncryptedBackup,
-                                onRestoreEncryptedBackup = viewModel::restoreEncryptedBackup,
-                                onLoadDemoData = viewModel::loadDemoData,
-                                onClearAllData = viewModel::clearAllData,
-                                onOpenUrl = viewModel::openExternalUrl,
-                            )
+                                AppDestination.SETTINGS -> SettingsScreen(
+                                    state = state,
+                                    onUpdateSettings = viewModel::updateSettings,
+                                    onExportCsv = viewModel::exportCsvToDisk,
+                                    onImportCsv = viewModel::importCsvFromPath,
+                                    onExportEncryptedBackup = viewModel::exportEncryptedBackup,
+                                    onRestoreEncryptedBackup = viewModel::restoreEncryptedBackup,
+                                    onLoadDemoData = viewModel::loadDemoData,
+                                    onClearAllData = viewModel::clearAllData,
+                                    onOpenUrl = viewModel::openExternalUrl,
+                                )
+                            }
                         }
                     }
                 }

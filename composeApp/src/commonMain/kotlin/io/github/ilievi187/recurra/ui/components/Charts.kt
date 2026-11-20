@@ -1,7 +1,9 @@
 package io.github.ilievi187.recurra.ui.components
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,17 +13,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -53,6 +58,14 @@ fun CategoryDonutChart(
         return
     }
 
+    var played by remember { mutableStateOf(false) }
+    LaunchedEffect(breakdown) { played = true }
+    val sweepProgress by animateFloatAsState(
+        targetValue = if (played) 1f else 0f,
+        animationSpec = tween(durationMillis = 750, easing = FastOutSlowInEasing),
+        label = "donutSweep",
+    )
+
     val trackColor = MaterialTheme.colorScheme.surfaceVariant
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -60,10 +73,10 @@ fun CategoryDonutChart(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         Box(
-            modifier = Modifier.size(148.dp),
+            modifier = Modifier.size(156.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Canvas(modifier = Modifier.size(148.dp)) {
+            Canvas(modifier = Modifier.size(156.dp)) {
                 val strokeWidth = 22.dp.toPx()
                 val arcSize = Size(size.width - strokeWidth, size.height - strokeWidth)
                 val topLeft = Offset(strokeWidth / 2f, strokeWidth / 2f)
@@ -80,17 +93,18 @@ fun CategoryDonutChart(
 
                 var startAngle = -90f
                 breakdown.forEach { item ->
-                    val sweep = (item.share * 360.0).toFloat().coerceAtLeast(2f)
+                    val rawSweep = (item.share * 360.0).toFloat() * sweepProgress
+                    val sweep = (rawSweep - 3f).coerceAtLeast(1.5f)
                     drawArc(
                         color = Color(item.category.colorHex),
                         startAngle = startAngle,
-                        sweepAngle = (sweep - 2f).coerceAtLeast(1f),
+                        sweepAngle = sweep,
                         useCenter = false,
                         topLeft = topLeft,
                         size = arcSize,
-                        style = Stroke(width = strokeWidth, cap = StrokeCap.Butt),
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
                     )
-                    startAngle += sweep
+                    startAngle += rawSweep
                 }
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -99,8 +113,9 @@ fun CategoryDonutChart(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Text(
-                    text = FinanceCalculator.formatCurrency(monthlyTotal, baseCurrency),
+                AnimatedCurrencyText(
+                    amount = monthlyTotal,
+                    currencyCode = baseCurrency,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
@@ -109,20 +124,19 @@ fun CategoryDonutChart(
 
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             breakdown.take(6).forEach { item ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .clip(CircleShape)
-                            .background(Color(item.category.colorHex)),
+                    CategoryAvatar(
+                        category = item.category,
+                        size = 28.dp,
+                        iconSize = 15.dp,
                     )
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(10.dp))
                     Text(
                         text = item.category.displayName,
                         style = MaterialTheme.typography.bodyMedium,
@@ -130,7 +144,7 @@ fun CategoryDonutChart(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f),
                     )
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(6.dp))
                     Text(
                         text = "${(item.share * 100).toInt()}%",
                         style = MaterialTheme.typography.labelMedium,
@@ -154,9 +168,17 @@ fun CashflowBarChart(
     baseCurrency: String,
     modifier: Modifier = Modifier,
 ) {
+    var played by remember { mutableStateOf(false) }
+    LaunchedEffect(projections) { played = true }
+    val riseProgress by animateFloatAsState(
+        targetValue = if (played) 1f else 0f,
+        animationSpec = tween(durationMillis = 700, easing = FastOutSlowInEasing),
+        label = "barRise",
+    )
+
     val maxAmount = (projections.maxOfOrNull { it.totalAmount } ?: 0.0).coerceAtLeast(1.0)
     val primary = MaterialTheme.colorScheme.primary
-    val accent = MaterialTheme.colorScheme.secondary
+    val secondary = MaterialTheme.colorScheme.secondary
     val surfaceVar = MaterialTheme.colorScheme.surfaceVariant
     val avg = if (projections.isNotEmpty()) projections.map { it.totalAmount }.average() else 0.0
 
@@ -176,11 +198,11 @@ fun CashflowBarChart(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(14.dp))
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(170.dp),
+                .height(180.dp),
         ) {
             if (projections.isEmpty()) return@Canvas
             val barSpacing = 10.dp.toPx()
@@ -190,25 +212,29 @@ fun CashflowBarChart(
 
             projections.forEachIndexed { index, month ->
                 val x = index * (barWidth + barSpacing)
-                // Background track
                 drawRoundRect(
                     color = surfaceVar,
                     topLeft = Offset(x, 0f),
                     size = Size(barWidth, chartHeight),
-                    cornerRadius = CornerRadius(6.dp.toPx(), 6.dp.toPx()),
+                    cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx()),
                 )
-                val ratio = (month.totalAmount / maxAmount).toFloat().coerceIn(0f, 1f)
+                val ratio = ((month.totalAmount / maxAmount).toFloat().coerceIn(0f, 1f)) * riseProgress
                 val barHeight = (chartHeight * ratio).coerceAtLeast(if (month.totalAmount > 0) 6f else 0f)
                 val isSpike = month.totalAmount > avg * 1.35 && avg > 0
+                val barBrush = if (isSpike) {
+                    Brush.verticalGradient(listOf(secondary, Color(0xFFF43F5E)))
+                } else {
+                    Brush.verticalGradient(listOf(primary, Color(0xFF06B6D4)))
+                }
                 drawRoundRect(
-                    color = if (isSpike) accent else primary,
+                    brush = barBrush,
                     topLeft = Offset(x, chartHeight - barHeight),
                     size = Size(barWidth, barHeight),
-                    cornerRadius = CornerRadius(6.dp.toPx(), 6.dp.toPx()),
+                    cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx()),
                 )
             }
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,

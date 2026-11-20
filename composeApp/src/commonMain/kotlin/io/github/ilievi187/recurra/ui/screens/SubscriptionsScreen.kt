@@ -50,6 +50,7 @@ import io.github.ilievi187.recurra.domain.FinanceCalculator
 import io.github.ilievi187.recurra.domain.Subscription
 import io.github.ilievi187.recurra.domain.SubscriptionCategory
 import io.github.ilievi187.recurra.domain.SubscriptionStatus
+import io.github.ilievi187.recurra.ui.components.CategoryAvatar
 import io.github.ilievi187.recurra.ui.state.RecurraUiState
 import io.github.ilievi187.recurra.ui.state.SubscriptionSort
 
@@ -237,12 +238,7 @@ private fun SubscriptionItemCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(12.dp)
-                        .clip(CircleShape)
-                        .background(Color(sub.category.colorHex)),
-                )
+                CategoryAvatar(category = sub.category, size = 40.dp, iconSize = 20.dp)
                 Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Row(
