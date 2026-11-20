@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.ilievi187.recurra</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Recurra</name>
+  <summary>Privacy-first offline subscription, recurring bill, and warranty tracker</summary>
+  <description>
+    <p>
+      Recurra is a free, open-source, 100% offline-first application for tracking subscriptions,
+      recurring bills, free trials, and product warranties across Linux, Windows, and Android.
+    </p>
+    <p>
+      Features include normalized monthly and yearly spend dashboards, multi-currency offline
+      conversion, a renewal calendar, 12-month cashflow projections, AES-256-GCM encrypted backups,
+      and RFC-4180 CSV export and import.
+    </p>
+  </description>
+  <launchable type="desktop-id">recurra.desktop</launchable>
+  <url type="homepage">https://github.com/ilievi187/recurra</url>
+  <url type="bugtracker">https://github.com/ilievi187/recurra/issues</url>
+  <url type="donation">https://buymeacoffee.com/aurorauap</url>
+  <developer id="io.github.ilievi187">
+    <name>ilievi187</name>
+  </developer>
+  <categories>
+    <category>Office</category>
+    <category>Finance</category>
+  </categories>
+  <provides>
+    <binary>Recurra</binary>
+  </provides>
+  <releases>
+    <release version="1.1.0" date="2026-11-20">
+      <description>
+        <p>Universal Linux distro polish: Wayland/Hyprland launcher fixes, RPM &amp; Arch PKGBUILD packaging, AppStream metadata, native desktop window icon, and Linux notify-send renewal alerts.</p>
+      </description>
+    </release>
+  </releases>
+  <content_rating type="oars-1.1" />
+</component>

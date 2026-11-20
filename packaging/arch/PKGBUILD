@@ -1,0 +1,45 @@
+# Maintainer: ilievi187 <ilievi187@users.noreply.github.com>
+pkgname=recurra-bin
+pkgver=1.1.0
+pkgrel=1
+pkgdesc="Privacy-first, offline-first subscription, recurring bill, and warranty tracker"
+arch=('x86_64')
+url="https://github.com/ilievi187/recurra"
+license=('MIT')
+depends=('glibc' 'libx11' 'libxext' 'libxi' 'libxrender' 'libxtst' 'freetype2' 'fontconfig' 'alsa-lib')
+optdepends=('libnotify: desktop renewal notifications via notify-send')
+provides=('recurra')
+conflicts=('recurra')
+options=('!strip')
+source=("https://github.com/ilievi187/recurra/releases/download/v${pkgver}/Recurra-${pkgver}-linux-x86_64.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+    install -d "${pkgdir}/opt/recurra"
+    cp -a "${srcdir}/Recurra/." "${pkgdir}/opt/recurra/"
+
+    install -d "${pkgdir}/usr/bin"
+    cat > "${pkgdir}/usr/bin/recurra" << 'EOF'
+#!/usr/bin/env bash
+export _JAVA_AWT_WM_NONREPARENTING=1
+if [ -n "${DISPLAY:-}" ] && [[ "${DISPLAY}" =~ ^:([0-9]+)$ ]]; then
+  dnum="${BASH_REMATCH[1]}"
+  if [ ! -S "/tmp/.X11-unix/X${dnum}" ]; then
+    for sock in "/tmp/.X11-unix/X${dnum}_" /tmp/.X11-unix/X*; do
+      if [ -S "${sock}" ]; then
+        export DISPLAY="${sock}"
+        break
+      fi
+    done
+  fi
+fi
+exec /opt/recurra/bin/Recurra "$@"
+EOF
+    chmod 755 "${pkgdir}/usr/bin/recurra"
+
+    install -Dm644 "${srcdir}/Recurra/recurra.desktop" "${pkgdir}/usr/share/applications/recurra.desktop"
+    sed -i 's|^Exec=.*|Exec=/usr/bin/recurra|' "${pkgdir}/usr/share/applications/recurra.desktop"
+    install -Dm644 "${srcdir}/Recurra/recurra.png" "${pkgdir}/usr/share/icons/hicolor/256x256/apps/recurra.png"
+    install -Dm644 "${srcdir}/Recurra/io.github.ilievi187.recurra.metainfo.xml" "${pkgdir}/usr/share/metainfo/io.github.ilievi187.recurra.metainfo.xml"
+    install -Dm644 "${srcdir}/Recurra/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

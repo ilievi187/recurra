@@ -2,6 +2,15 @@
 
 All notable changes to **Recurra** are documented in this file.
 
+## [1.1.0] - 2026-11-20
+
+### Added
+- **Universal Linux distro packaging:** Added native `.rpm` (Fedora/openSUSE), portable `.tar.gz` (NixOS/Void/Gentoo), and Arch Linux `packaging/arch/PKGBUILD` alongside `.AppImage` and `.deb`.
+- **Wayland, Hyprland & tiling-WM auto-compatibility:** `AppRun` and `launch-recurra.sh` automatically configure `_JAVA_AWT_WM_NONREPARENTING=1`, system font anti-aliasing, and smart XWayland socket fallback (e.g. `/tmp/.X11-unix/X0_`).
+- **AppStream metadata** (`io.github.ilievi187.recurra.metainfo.xml`) for Linux software centers and AppImage integration.
+- **Native desktop window icon** embedded in Compose Desktop builds.
+- **Linux desktop renewal notifications** via `notify-send` when subscriptions or trials are due within 3 days.
+
 ## [1.0.1] - 2026-11-20
 
 ### Changed

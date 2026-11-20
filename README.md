@@ -38,16 +38,27 @@ Tracking recurring expenses shouldn't require paying another recurring subscript
 
 Download the latest verified packages from [**GitHub Releases**](https://github.com/ilievi187/recurra/releases/latest) and verify integrity with `SHA256SUMS.txt`.
 
-### Linux
-- **AppImage (recommended for any distro):**
+### Linux (All Distributions — Wayland, Hyprland, Sway, GNOME, KDE, X11)
+- **Universal AppImage (works on every distro, includes automatic Wayland/Hyprland/XWayland & tiling-WM fixes):**
   ```bash
-  chmod +x Recurra-1.0.0-x86_64.AppImage
-  ./Recurra-1.0.0-x86_64.AppImage
+  chmod +x Recurra-1.1.0-x86_64.AppImage
+  ./Recurra-1.1.0-x86_64.AppImage
   ```
-- **Debian / Ubuntu (`.deb`):**
+  *(On minimal distros without FUSE: `APPIMAGE_EXTRACT_AND_RUN=1 ./Recurra-1.1.0-x86_64.AppImage`)*
+- **Debian / Ubuntu / Mint / Pop!_OS (`.deb`):**
   ```bash
-  sudo apt install ./recurra-1.0.0-amd64.deb
+  sudo apt install ./recurra-1.1.0-amd64.deb
   ```
+- **Fedora / RHEL / openSUSE (`.rpm`):**
+  ```bash
+  sudo dnf install ./recurra-1.1.0-x86_64.rpm
+  ```
+- **Arch Linux / Omarchy / CachyOS / EndeavourOS / Manjaro (`PKGBUILD`):**
+  ```bash
+  cd packaging/arch && makepkg -si
+  ```
+- **Portable Tarball (NixOS, Void, Gentoo, Alpine, manual install):**
+  Extract `Recurra-1.1.0-linux-x86_64.tar.gz` and run `./Recurra/launch-recurra.sh`.
 
 ### Windows 11
 - **Installer:** Download and run `Recurra-1.0.0-windows-x64.msi`.
