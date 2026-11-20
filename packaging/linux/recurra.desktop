@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Recurra
+Comment=Privacy-first offline subscription, recurring bill, and warranty tracker
+Exec=recurra
+Icon=recurra
+Categories=Office;Finance;
+Terminal=false
+StartupWMClass=io-github-ilievi187-recurra-MainKt

@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-and-android:
+    name: Linux & Android (Test + Build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.11.1
+
+      - name: Run unit tests (Desktop & Android)
+        run: gradle :composeApp:desktopTest :composeApp:testDebugUnitTest --no-daemon
+
+      - name: Build Linux distributable & smoke test
+        run: |
+          gradle :composeApp:createDistributable --no-daemon
+          ./composeApp/build/compose/binaries/main/app/recurra/bin/recurra --smoke-test
+
+      - name: Build Android APK
+        run: gradle :composeApp:assembleRelease --no-daemon
+
+  windows:
+    name: Windows 11 (Test + Native Build)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.11.1
+
+      - name: Run Windows desktop unit tests
+        run: gradle :composeApp:desktopTest --no-daemon
+
+      - name: Build Windows native distributable & smoke test
+        run: |
+          gradle :composeApp:createDistributable --no-daemon
+          .\composeApp\build\compose\binaries\main\app\Recurra\Recurra.exe --smoke-test
