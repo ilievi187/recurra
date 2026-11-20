@@ -14,92 +14,119 @@ import androidx.compose.ui.unit.sp
 import io.github.ilievi187.recurra.domain.ThemePreference
 
 object RecurraPalette {
-    val Emerald = Color(0xFF10B981)
-    val EmeraldDeep = Color(0xFF059669)
-    val Violet = Color(0xFF8B5CF6)
-    val VioletDeep = Color(0xFF6D28D9)
-    val Amber = Color(0xFFF59E0B)
-    val Rose = Color(0xFFF43F5E)
-    val Cyan = Color(0xFF06B6D4)
+    // Warm Botanical & Google Calendar–inspired Material You accents
+    val Sage = Color(0xFF2E7D5B)
+    val SageLight = Color(0xFF52A67E)
+    val MintSoft = Color(0xFFE2F2E9)
+    val CreamCanvas = Color(0xFFFAF9F4)
+    val WarmYellow = Color(0xFFF4B942)
+    val ButterYellow = Color(0xFFFEF3C7)
+    val WarmPeach = Color(0xFFE88D67)
+    val SoftCoral = Color(0xFFE06D53)
+    val Lavender = Color(0xFF8B7EC8)
+    val SkySoft = Color(0xFF5FA8D3)
+
+    // Compatibility aliases
+    val Emerald = Sage
+    val Violet = Lavender
+    val Amber = WarmYellow
+    val Rose = SoftCoral
+    val Cyan = SkySoft
 
     fun heroGradient(isDark: Boolean): Brush = if (isDark) {
         Brush.linearGradient(
             colors = listOf(
-                Color(0xFF132A2E),
-                Color(0xFF1B1E34),
-                Color(0xFF231934),
+                Color(0xFF1F3329),
+                Color(0xFF2B3E2E),
+                Color(0xFF3A3623),
             ),
         )
     } else {
         Brush.linearGradient(
             colors = listOf(
-                Color(0xFF065F46),
-                Color(0xFF1E3A5F),
-                Color(0xFF4C1D95),
+                Color(0xFFE7F5EC),
+                Color(0xFFF3F7E4),
+                Color(0xFFFEF6DA),
             ),
         )
     }
 
-    fun calendarBannerGradient(monthNumber: Int, isDark: Boolean): Brush {
-        val pair = when (monthNumber) {
-            12, 1, 2 -> if (isDark) Color(0xFF172554) to Color(0xFF1E1B4B) else Color(0xFF1D4ED8) to Color(0xFF4338CA)
-            3, 4, 5 -> if (isDark) Color(0xFF064E3B) to Color(0xFF134E4A) else Color(0xFF059669) to Color(0xFF0D9488)
-            6, 7, 8 -> if (isDark) Color(0xFF78350F) to Color(0xFF581C87) else Color(0xFFD97706) to Color(0xFF9333EA)
-            else -> if (isDark) Color(0xFF4C1D95) to Color(0xFF7C2D12) else Color(0xFF7C3AED) to Color(0xFFEA580C)
+    fun calendarSkyGradient(monthNumber: Int, isDark: Boolean): Brush {
+        val colors = when (monthNumber) {
+            12, 1, 2 -> if (isDark) {
+                listOf(Color(0xFF1C2D36), Color(0xFF243B40))
+            } else {
+                listOf(Color(0xFFE4F2F7), Color(0xFFEBF5EE), Color(0xFFFDF8E6))
+            }
+            3, 4, 5 -> if (isDark) {
+                listOf(Color(0xFF1D3529), Color(0xFF2B412C))
+            } else {
+                listOf(Color(0xFFE3F5E8), Color(0xFFF2F9DF), Color(0xFFFFF4D6))
+            }
+            6, 7, 8 -> if (isDark) {
+                listOf(Color(0xFF2F341D), Color(0xFF3D341E))
+            } else {
+                listOf(Color(0xFFFFF6D6), Color(0xFFF3F8E0), Color(0xFFE4F5EA))
+            }
+            else -> if (isDark) {
+                listOf(Color(0xFF362B20), Color(0xFF293324))
+            } else {
+                listOf(Color(0xFFFEF1DD), Color(0xFFF9F4E1), Color(0xFFE9F3E6))
+            }
         }
-        return Brush.linearGradient(listOf(pair.first, pair.second))
+        return Brush.linearGradient(colors)
     }
 }
 
-private val LightColors = lightColorScheme(
-    primary = Color(0xFF059669),
+private val WarmLightColors = lightColorScheme(
+    primary = Color(0xFF2E7D5B),
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFD1FAE5),
-    onPrimaryContainer = Color(0xFF064E3B),
-    secondary = Color(0xFF6D28D9),
+    primaryContainer = Color(0xFFDDF3E6),
+    onPrimaryContainer = Color(0xFF14422E),
+    secondary = Color(0xFFD48C1C),
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFEDE9FE),
-    onSecondaryContainer = Color(0xFF3B0764),
-    tertiary = Color(0xFFD97706),
+    secondaryContainer = Color(0xFFFEF2CF),
+    onSecondaryContainer = Color(0xFF523505),
+    tertiary = Color(0xFFD96B4F),
     onTertiary = Color.White,
-    background = Color(0xFFF6F7FB),
-    onBackground = Color(0xFF111827),
+    background = Color(0xFFFAF9F4),
+    onBackground = Color(0xFF1F2A24),
     surface = Color(0xFFFFFFFF),
-    onSurface = Color(0xFF111827),
-    surfaceVariant = Color(0xFFEEF0F6),
-    onSurfaceVariant = Color(0xFF4B5563),
-    outline = Color(0xFFD1D5DB),
-    outlineVariant = Color(0xFFE5E7EB),
-    error = Color(0xFFE11D48),
+    onSurface = Color(0xFF1F2A24),
+    surfaceVariant = Color(0xFFF2F1E8),
+    onSurfaceVariant = Color(0xFF5A655E),
+    outline = Color(0xFFD6D5C9),
+    outlineVariant = Color(0xFFE8E6DA),
+    error = Color(0xFFD1495B),
     onError = Color.White,
 )
 
-private val DarkColors = darkColorScheme(
-    primary = Color(0xFF10B981),
-    onPrimary = Color(0xFF022C22),
-    primaryContainer = Color(0xFF064E3B),
-    onPrimaryContainer = Color(0xFFA7F3D0),
-    secondary = Color(0xFFA78BFA),
-    onSecondary = Color(0xFF2E1065),
-    secondaryContainer = Color(0xFF3B246C),
-    onSecondaryContainer = Color(0xFFEDE9FE),
-    tertiary = Color(0xFFFBBF24),
-    onTertiary = Color(0xFF451A03),
-    background = Color(0xFF0D0F14),
-    onBackground = Color(0xFFF3F4F6),
-    surface = Color(0xFF151923),
-    onSurface = Color(0xFFF3F4F6),
-    surfaceVariant = Color(0xFF1E2433),
-    onSurfaceVariant = Color(0xFF9CA3AF),
-    outline = Color(0xFF374151),
-    outlineVariant = Color(0xFF252C3D),
-    error = Color(0xFFFB7185),
-    onError = Color(0xFF4C0519),
+private val WarmDarkColors = darkColorScheme(
+    primary = Color(0xFF6CC99C),
+    onPrimary = Color(0xFF0B2E1E),
+    primaryContainer = Color(0xFF1E4A36),
+    onPrimaryContainer = Color(0xFFDDF3E6),
+    secondary = Color(0xFFF5C969),
+    onSecondary = Color(0xFF3D2804),
+    secondaryContainer = Color(0xFF4C3A16),
+    onSecondaryContainer = Color(0xFFFEF2CF),
+    tertiary = Color(0xFFF29C7E),
+    onTertiary = Color(0xFF471C0D),
+    background = Color(0xFF141815),
+    onBackground = Color(0xFFF3F2EC),
+    surface = Color(0xFF1C221E),
+    onSurface = Color(0xFFF3F2EC),
+    surfaceVariant = Color(0xFF262E28),
+    onSurfaceVariant = Color(0xFFAAB4AC),
+    outline = Color(0xFF3D4740),
+    outlineVariant = Color(0xFF2D3630),
+    error = Color(0xFFF28482),
+    onError = Color(0xFF471216),
 )
 
 private val RecurraTypography = Typography(
-    headlineLarge = TextStyle(fontSize = 30.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.6).sp),
-    headlineMedium = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-0.3).sp),
+    headlineLarge = TextStyle(fontSize = 30.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.4).sp),
+    headlineMedium = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-0.2).sp),
     titleLarge = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
     titleMedium = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold),
     bodyLarge = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Normal),
@@ -121,7 +148,7 @@ fun RecurraTheme(
     }
 
     MaterialTheme(
-        colorScheme = if (darkTheme) DarkColors else LightColors,
+        colorScheme = if (darkTheme) WarmDarkColors else WarmLightColors,
         typography = RecurraTypography,
         content = content,
     )

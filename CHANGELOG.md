@@ -2,6 +2,13 @@
 
 All notable changes to **Recurra** are documented in this file.
 
+## [1.3.0] - 2026-11-21
+
+### Changed
+- **Warm Botanical Material You Design (Google Calendar–inspired):** Default warm cream (`#FAF9F4`), sage green (`#2E7D5B`), soft mint, and warm butter-yellow palette designed to feel inviting and human-friendly (with a cozy warm-forest dark mode option in Settings).
+- **Illustrated Seasonal Botanical Artwork:** Procedural Compose Canvas illustrations with rolling sunlit hills, warm sun, soft clouds, leaves, and blooming seasonal flowers on both the Calendar header and Dashboard overview.
+- **Friendly Everyday Copy:** Updated labels and empty states for a warm, approachable everyday experience.
+
 ## [1.2.0] - 2026-11-20
 
 ### Changed

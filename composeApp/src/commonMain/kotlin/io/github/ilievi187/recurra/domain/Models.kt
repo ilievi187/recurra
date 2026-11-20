@@ -91,7 +91,7 @@ data class PaymentRecord(
 @Serializable
 data class AppSettings(
     val baseCurrency: String = "USD",
-    val themePreference: ThemePreference = ThemePreference.SYSTEM,
+    val themePreference: ThemePreference = ThemePreference.LIGHT,
     val defaultReminderDays: Int = 3,
     /**
      * Exchange rates expressed as: 1 unit of key currency = value in USD.

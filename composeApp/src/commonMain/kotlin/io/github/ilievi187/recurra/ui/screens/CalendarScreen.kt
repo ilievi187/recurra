@@ -28,7 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.EventAvailable
+import androidx.compose.material.icons.rounded.LocalFlorist
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -53,8 +53,8 @@ import androidx.compose.ui.unit.dp
 import io.github.ilievi187.recurra.domain.FinanceCalculator
 import io.github.ilievi187.recurra.domain.Subscription
 import io.github.ilievi187.recurra.domain.ThemePreference
-import io.github.ilievi187.recurra.ui.components.AmbientOrbsBackdrop
 import io.github.ilievi187.recurra.ui.components.AnimatedCurrencyText
+import io.github.ilievi187.recurra.ui.components.BotanicalIllustrationCanvas
 import io.github.ilievi187.recurra.ui.components.CategoryAvatar
 import io.github.ilievi187.recurra.ui.components.categoryIcon
 import io.github.ilievi187.recurra.ui.components.seasonIcon
@@ -81,6 +81,8 @@ fun CalendarScreen(
         ThemePreference.LIGHT -> false
         ThemePreference.SYSTEM -> isSystemInDarkTheme()
     }
+    val bannerTitleColor = if (isDark) Color(0xFFF3F2EC) else Color(0xFF1B2E24)
+    val bannerSubColor = if (isDark) Color(0xFFC8D4CC) else Color(0xFF3E5648)
 
     val base = state.vault.settings.baseCurrency
     val rates = state.vault.settings.ratesToUsd
@@ -105,25 +107,26 @@ fun CalendarScreen(
         contentPadding = PaddingValues(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        // Seasonal Visual Hero Banner
+        // Google Calendar–inspired Botanical Illustrated Month Header
         item {
             Card(
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                modifier = Modifier.fillMaxWidth().height(152.dp),
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(RecurraPalette.calendarBannerGradient(currentMonth.monthNumber, isDark)),
+                        .fillMaxSize()
+                        .background(RecurraPalette.calendarSkyGradient(currentMonth.monthNumber, isDark)),
                 ) {
-                    AmbientOrbsBackdrop(
-                        primaryGlow = Color.White,
-                        secondaryGlow = RecurraPalette.Amber,
+                    BotanicalIllustrationCanvas(
+                        monthNumber = currentMonth.monthNumber,
+                        isDark = isDark,
                         modifier = Modifier.matchParentSize(),
                     )
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(20.dp),
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 20.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -131,71 +134,77 @@ fun CalendarScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(14.dp),
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .clip(RoundedCornerShape(14.dp))
-                                    .background(Color.White.copy(alpha = 0.16f)),
-                                contentAlignment = Alignment.Center,
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = if (isDark) Color(0xFF1A241E).copy(alpha = 0.78f) else Color.White.copy(alpha = 0.85f),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                                modifier = Modifier.size(54.dp),
                             ) {
-                                Icon(
-                                    imageVector = seasonIcon(currentMonth.monthNumber),
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(28.dp),
-                                )
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = seasonIcon(currentMonth.monthNumber),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(28.dp),
+                                    )
+                                }
                             }
-                            Column {
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(
                                     text = "${monthNames[currentMonth.monthNumber - 1]} ${currentMonth.year}",
                                     style = MaterialTheme.typography.headlineMedium,
-                                    color = Color.White,
+                                    color = bannerTitleColor,
                                     fontWeight = FontWeight.Bold,
                                 )
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                Surface(
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = if (isDark) Color(0xFF1A241E).copy(alpha = 0.72f) else Color.White.copy(alpha = 0.78f),
                                 ) {
-                                    AnimatedCurrencyText(
-                                        amount = monthTotal,
-                                        currencyCode = base,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color.White.copy(alpha = 0.92f),
-                                        fontWeight = FontWeight.SemiBold,
-                                    )
-                                    Text(
-                                        text = "· ${allMonthSubs.size} renewal(s)",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = Color.White.copy(alpha = 0.78f),
-                                    )
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    ) {
+                                        AnimatedCurrencyText(
+                                            amount = monthTotal,
+                                            currencyCode = base,
+                                            style = MaterialTheme.typography.labelLarge,
+                                            color = bannerTitleColor,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        Text(
+                                            text = "· ${allMonthSubs.size} bill(s) this month",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = bannerSubColor,
+                                        )
+                                    }
                                 }
                             }
                         }
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = Color.White.copy(alpha = 0.14f),
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(onClick = {
-                                        currentMonth = currentMonth.minus(DatePeriod(months = 1))
-                                        selectedDay = null
-                                    }) {
-                                        Icon(Icons.Rounded.ChevronLeft, contentDescription = "Previous month", tint = Color.White)
-                                    }
-                                    TextButton(onClick = {
-                                        currentMonth = LocalDate(today.year, today.monthNumber, 1)
-                                        selectedDay = today.dayOfMonth
-                                    }) {
-                                        Text("Today", color = Color.White, fontWeight = FontWeight.SemiBold)
-                                    }
-                                    IconButton(onClick = {
-                                        currentMonth = currentMonth.plus(DatePeriod(months = 1))
-                                        selectedDay = null
-                                    }) {
-                                        Icon(Icons.Rounded.ChevronRight, contentDescription = "Next month", tint = Color.White)
-                                    }
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = if (isDark) Color(0xFF1A241E).copy(alpha = 0.82f) else Color.White.copy(alpha = 0.86f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(onClick = {
+                                    currentMonth = currentMonth.minus(DatePeriod(months = 1))
+                                    selectedDay = null
+                                }) {
+                                    Icon(Icons.Rounded.ChevronLeft, contentDescription = "Previous month", tint = bannerTitleColor)
+                                }
+                                TextButton(onClick = {
+                                    currentMonth = LocalDate(today.year, today.monthNumber, 1)
+                                    selectedDay = today.dayOfMonth
+                                }) {
+                                    Text("Today", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                                }
+                                IconButton(onClick = {
+                                    currentMonth = currentMonth.plus(DatePeriod(months = 1))
+                                    selectedDay = null
+                                }) {
+                                    Icon(Icons.Rounded.ChevronRight, contentDescription = "Next month", tint = bannerTitleColor)
                                 }
                             }
                         }
@@ -204,14 +213,14 @@ fun CalendarScreen(
             }
         }
 
-        // Visual Calendar Grid with Category Icons & Daily Totals
+        // Warm Pastel Calendar Grid with Category Icons & Daily Totals
         item {
             Card(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             ) {
-                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun").forEach { d ->
                             Text(
@@ -247,25 +256,25 @@ fun CalendarScreen(
                                     val cellBg by animateColorAsState(
                                         targetValue = when {
                                             isSelected -> MaterialTheme.colorScheme.primaryContainer
-                                            daySubs.isNotEmpty() -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-                                            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+                                            daySubs.isNotEmpty() -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f)
+                                            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
                                         },
                                         animationSpec = tween(180),
                                         label = "dayBg",
                                     )
 
                                     Surface(
-                                        shape = RoundedCornerShape(12.dp),
+                                        shape = RoundedCornerShape(14.dp),
                                         color = cellBg,
                                         border = when {
                                             isSelected -> BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary)
-                                            isToday -> BorderStroke(1.5.dp, RecurraPalette.Emerald)
+                                            isToday -> BorderStroke(1.5.dp, RecurraPalette.Sage)
                                             daySubs.isNotEmpty() -> BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                                             else -> null
                                         },
                                         modifier = Modifier
                                             .weight(1f)
-                                            .height(74.dp)
+                                            .height(76.dp)
                                             .clickable { selectedDay = dayNum },
                                     ) {
                                         Column(
@@ -282,7 +291,7 @@ fun CalendarScreen(
                                                     text = dayNum.toString(),
                                                     style = MaterialTheme.typography.labelMedium,
                                                     fontWeight = if (isToday || isSelected) FontWeight.ExtraBold else FontWeight.Medium,
-                                                    color = if (isToday) RecurraPalette.Emerald else MaterialTheme.colorScheme.onSurface,
+                                                    color = if (isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                                                 )
                                                 if (daySubs.size > 2) {
                                                     Text(
@@ -302,16 +311,16 @@ fun CalendarScreen(
                                                         val accent = Color(sub.category.colorHex)
                                                         Box(
                                                             modifier = Modifier
-                                                                .size(20.dp)
-                                                                .clip(RoundedCornerShape(6.dp))
-                                                                .background(accent.copy(alpha = 0.22f)),
+                                                                .size(21.dp)
+                                                                .clip(RoundedCornerShape(7.dp))
+                                                                .background(accent.copy(alpha = 0.20f)),
                                                             contentAlignment = Alignment.Center,
                                                         ) {
                                                             Icon(
                                                                 imageVector = categoryIcon(sub.category),
                                                                 contentDescription = sub.name,
                                                                 tint = accent,
-                                                                modifier = Modifier.size(12.dp),
+                                                                modifier = Modifier.size(13.dp),
                                                             )
                                                         }
                                                     }
@@ -322,13 +331,13 @@ fun CalendarScreen(
                                                     fontWeight = FontWeight.SemiBold,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    color = MaterialTheme.colorScheme.onSurface,
                                                 )
                                             }
                                         }
                                     }
                                 } else {
-                                    Spacer(modifier = Modifier.weight(1f).height(74.dp))
+                                    Spacer(modifier = Modifier.weight(1f).height(76.dp))
                                 }
                             }
                         }
@@ -347,9 +356,9 @@ fun CalendarScreen(
                 val daySubs = if (day != null) renewalsByDay[day].orEmpty() else emptyList()
                 SectionCard(
                     title = if (day != null) {
-                        "Renewals on ${monthNames[currentMonth.monthNumber - 1]} $day, ${currentMonth.year}"
+                        "Bills on ${monthNames[currentMonth.monthNumber - 1]} $day, ${currentMonth.year}"
                     } else {
-                        "Select a day to inspect renewals"
+                        "Tap any day to see what's due"
                     },
                 ) {
                     if (daySubs.isEmpty()) {
@@ -358,13 +367,13 @@ fun CalendarScreen(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
                             Icon(
-                                Icons.Rounded.EventAvailable,
+                                Icons.Rounded.LocalFlorist,
                                 contentDescription = null,
-                                tint = RecurraPalette.Emerald,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(22.dp),
                             )
                             Text(
-                                text = "All clear! No renewals scheduled for this day.",
+                                text = "All clear today — no bills scheduled. Enjoy your day!",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -374,15 +383,15 @@ fun CalendarScreen(
                             daySubs.forEach { sub ->
                                 Surface(
                                     onClick = { onEditSubscription(sub) },
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
                                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                                 ) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth().padding(12.dp),
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
-                                        CategoryAvatar(category = sub.category, size = 38.dp, iconSize = 19.dp)
+                                        CategoryAvatar(category = sub.category, size = 40.dp, iconSize = 20.dp)
                                         Spacer(Modifier.width(12.dp))
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(sub.name, style = MaterialTheme.typography.titleMedium)
@@ -402,7 +411,7 @@ fun CalendarScreen(
                                             Icon(
                                                 Icons.Rounded.CheckCircle,
                                                 contentDescription = "Mark paid",
-                                                tint = RecurraPalette.Emerald,
+                                                tint = MaterialTheme.colorScheme.primary,
                                             )
                                         }
                                     }

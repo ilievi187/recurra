@@ -137,11 +137,11 @@ fun RecurraApp(
                                 ) {
                                     Box(
                                         modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(RoundedCornerShape(12.dp))
+                                            .size(42.dp)
+                                            .clip(RoundedCornerShape(14.dp))
                                             .background(
                                                 Brush.linearGradient(
-                                                    listOf(RecurraPalette.Emerald, RecurraPalette.Violet),
+                                                    listOf(RecurraPalette.Sage, RecurraPalette.WarmYellow),
                                                 ),
                                             ),
                                         contentAlignment = Alignment.Center,
