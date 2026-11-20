@@ -39,7 +39,7 @@ jobs:
       - name: Build Linux DEB and distributable
         run: |
           gradle :composeApp:packageDeb :composeApp:createDistributable --no-daemon
-          ./composeApp/build/compose/binaries/main/app/recurra/bin/recurra --smoke-test
+          ./composeApp/build/compose/binaries/main/app/Recurra/bin/Recurra --smoke-test
 
       - name: Package Linux AppImage
         run: |

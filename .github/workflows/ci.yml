@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
@@ -38,7 +38,7 @@ jobs:
       - name: Build Linux distributable & smoke test
         run: |
           gradle :composeApp:createDistributable --no-daemon
-          ./composeApp/build/compose/binaries/main/app/recurra/bin/recurra --smoke-test
+          ./composeApp/build/compose/binaries/main/app/Recurra/bin/Recurra --smoke-test
 
       - name: Build Android APK
         run: gradle :composeApp:assembleRelease --no-daemon
