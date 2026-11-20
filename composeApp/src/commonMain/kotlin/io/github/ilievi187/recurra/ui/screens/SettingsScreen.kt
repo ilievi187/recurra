@@ -41,8 +41,7 @@ import io.github.ilievi187.recurra.domain.DefaultCurrencies
 import io.github.ilievi187.recurra.domain.ThemePreference
 import io.github.ilievi187.recurra.ui.state.RecurraUiState
 
-// Configurable donation link (update to your verified Buy Me a Coffee handle)
-private const val BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/ilievi187"
+private const val BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/aurorauap"
 private const val GITHUB_REPO_URL = "https://github.com/ilievi187/recurra"
 
 @OptIn(ExperimentalLayoutApi::class)

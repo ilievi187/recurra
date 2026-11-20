@@ -2,6 +2,11 @@
 
 All notable changes to **Recurra** are documented in this file.
 
+## [1.0.1] - 2026-11-20
+
+### Changed
+- Updated Buy Me a Coffee donation link to `https://buymeacoffee.com/aurorauap` across in-app Settings, `README.md`, and `.github/FUNDING.yml`.
+
 ## [1.0.0] - 2026-11-20
 
 ### Added

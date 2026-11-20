@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-0284C7.svg)](LICENSE)
 [![CI](https://github.com/ilievi187/recurra/actions/workflows/ci.yml/badge.svg)](https://github.com/ilievi187/recurra/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/ilievi187/recurra)](https://github.com/ilievi187/recurra/releases/latest)
-[![Buy Me a Coffee](https://img.shields.io/badge/Support-Buy%20Me%20a%20Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/ilievi187)
+[![Buy Me a Coffee](https://img.shields.io/badge/Support-Buy%20Me%20a%20Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/aurorauap)
 
 ---
 
@@ -104,9 +104,7 @@ gradle :composeApp:assembleRelease
 
 Recurra is completely free and open source — no paywalls, no ads, no feature gating. If it helped you catch a forgotten renewal or free trial, voluntary donations are warmly appreciated:
 
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Recurra-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/ilievi187)
-
-*(Note: Update the handle in `.github/FUNDING.yml`, `README.md`, and `SettingsScreen.kt` if using a different Buy Me a Coffee username.)*
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Recurra-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/aurorauap)
 
 ---
 
