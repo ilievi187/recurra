@@ -8,6 +8,9 @@ import java.awt.Frame
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import javax.swing.JFileChooser
+import javax.swing.SwingUtilities
+import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.concurrent.thread
 
 actual object DocumentScanner {
@@ -51,19 +54,106 @@ actual object DocumentScanner {
     }
 
     private fun pickFileNative(): File? {
-        return runCatching {
-            val dialog = FileDialog(null as Frame?, "Select Receipt, Invoice, or Warranty (JPG/PNG/PDF)", FileDialog.LOAD)
-            dialog.setFilenameFilter { _, name ->
-                val l = name.lowercase()
-                l.endsWith(".jpg") || l.endsWith(".jpeg") || l.endsWith(".png") ||
-                    l.endsWith(".webp") || l.endsWith(".pdf") || l.endsWith(".txt")
+        val os = System.getProperty("os.name").lowercase()
+        if (os.contains("linux")) {
+            // Wayland/Hyprland/X11-safe native portal file pickers (avoids AWT FileDialog off-EDT XWayland crashes)
+            if (isCommandAvailable("zenity")) {
+                return pickWithExternalCommand(
+                    listOf(
+                        "zenity",
+                        "--file-selection",
+                        "--title=Select Receipt, Invoice, or Warranty",
+                        "--file-filter=Receipts & Invoices | *.jpg *.jpeg *.png *.webp *.pdf *.txt *.JPG *.PNG *.PDF",
+                        "--file-filter=All files | *",
+                    ),
+                )
             }
-            dialog.isVisible = true
-            val dir = dialog.directory
-            val file = dialog.file
-            dialog.dispose()
-            if (dir != null && file != null) File(dir, file) else null
+
+            if (isCommandAvailable("kdialog")) {
+                return pickWithExternalCommand(
+                    listOf(
+                        "kdialog",
+                        "--getopenfilename",
+                        System.getProperty("user.home"),
+                        "*.jpg *.jpeg *.png *.webp *.pdf *.txt|Receipts & Invoices",
+                    ),
+                )
+            }
+
+            // Safe Swing JFileChooser fallback strictly on the AWT EDT
+            return pickWithSwingOnEdt()
+        }
+
+        // Windows & macOS: native FileDialog strictly on the AWT EDT
+        var chosen: File? = null
+        runCatching {
+            val task = Runnable {
+                val dialog = FileDialog(null as Frame?, "Select Receipt, Invoice, or Warranty", FileDialog.LOAD)
+                dialog.setFilenameFilter { _, name ->
+                    val l = name.lowercase()
+                    l.endsWith(".jpg") || l.endsWith(".jpeg") || l.endsWith(".png") ||
+                        l.endsWith(".webp") || l.endsWith(".pdf") || l.endsWith(".txt")
+                }
+                dialog.isVisible = true
+                val dir = dialog.directory
+                val file = dialog.file
+                dialog.dispose()
+                if (dir != null && file != null) {
+                    chosen = File(dir, file)
+                }
+            }
+            if (SwingUtilities.isEventDispatchThread()) {
+                task.run()
+            } else {
+                SwingUtilities.invokeAndWait(task)
+            }
+        }
+        return chosen
+    }
+
+    private fun isCommandAvailable(binary: String): Boolean {
+        return runCatching {
+            val proc = ProcessBuilder("which", binary).redirectErrorStream(true).start()
+            proc.waitFor() == 0
+        }.getOrDefault(false)
+    }
+
+    private fun pickWithExternalCommand(cmd: List<String>): File? {
+        return runCatching {
+            val proc = ProcessBuilder(cmd).redirectErrorStream(false).start()
+            val out = proc.inputStream.bufferedReader(Charsets.UTF_8).readText().trim()
+            val code = proc.waitFor()
+            if (code == 0 && out.isNotBlank()) {
+                val f = File(out)
+                if (f.exists() && f.isFile) f else null
+            } else {
+                null
+            }
         }.getOrNull()
+    }
+
+    private fun pickWithSwingOnEdt(): File? {
+        var chosen: File? = null
+        runCatching {
+            val task = Runnable {
+                val chooser = JFileChooser(System.getProperty("user.home")).apply {
+                    dialogTitle = "Select Receipt, Invoice, or Warranty"
+                    fileFilter = FileNameExtensionFilter(
+                        "Receipts & Invoices (JPG, PNG, WEBP, PDF, TXT)",
+                        "jpg", "jpeg", "png", "webp", "pdf", "txt",
+                    )
+                }
+                if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    chosen = chooser.selectedFile
+                }
+            }
+            if (SwingUtilities.isEventDispatchThread()) {
+                task.run()
+            } else {
+                SwingUtilities.invokeAndWait(task)
+            }
+        }
+        return chosen
     }
 
     private fun extractFromPdf(file: File, savedPath: String): ScanOutcome {

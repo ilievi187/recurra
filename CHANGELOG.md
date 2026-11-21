@@ -2,6 +2,11 @@
 
 All notable changes to **Recurra** are documented in this file.
 
+## [1.4.1] - 2026-11-21
+
+### Fixed
+- **Hyprland / Wayland crash when clicking Scan Receipt/Invoice:** Replaced off-EDT `java.awt.FileDialog` on Linux with native Wayland-safe `zenity` / `kdialog` portal file pickers (with EDT-safe `JFileChooser` fallback) and ensured Windows/macOS `FileDialog` runs strictly on the AWT EDT.
+
 ## [1.4.0] - 2026-11-21
 
 ### Added
