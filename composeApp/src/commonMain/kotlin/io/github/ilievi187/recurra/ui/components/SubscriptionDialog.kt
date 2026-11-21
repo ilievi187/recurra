@@ -8,12 +8,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -41,6 +46,7 @@ fun SubscriptionDialog(
     defaultCurrency: String,
     onDismiss: () -> Unit,
     onSave: (Subscription) -> Unit,
+    onScanInvoice: (() -> Unit)? = null,
 ) {
     var name by remember { mutableStateOf(initial?.name.orEmpty()) }
     var amountText by remember { mutableStateOf(initial?.amount?.toString().orEmpty()) }
@@ -77,6 +83,16 @@ fun SubscriptionDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                if (onScanInvoice != null && (initial == null || initial.id.isBlank())) {
+                    FilledTonalButton(
+                        onClick = onScanInvoice,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Icon(Icons.Rounded.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Scan Photo or PDF Invoice to Auto-Fill")
+                    }
+                }
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it; errorText = null },

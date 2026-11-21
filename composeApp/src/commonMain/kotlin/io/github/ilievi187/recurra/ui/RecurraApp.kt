@@ -191,7 +191,10 @@ fun RecurraApp(
                                     state = state,
                                     isWide = isWide,
                                     onAddSubscription = viewModel::openAddSubscriptionDialog,
+                                    onScanInvoice = viewModel::scanDocumentForSubscription,
+                                    onScanReceipt = viewModel::scanDocumentForWarranty,
                                     onLoadDemoData = viewModel::loadDemoData,
+                                    onClearDemoData = viewModel::clearAllData,
                                     onMarkPaid = viewModel::markSubscriptionPaid,
                                     onEditSubscription = { id ->
                                         state.vault.subscriptions.firstOrNull { it.id == id }
@@ -256,6 +259,10 @@ fun RecurraApp(
                     defaultCurrency = state.vault.settings.baseCurrency,
                     onDismiss = viewModel::closeSubscriptionDialog,
                     onSave = viewModel::saveSubscription,
+                    onScanInvoice = {
+                        viewModel.closeSubscriptionDialog()
+                        viewModel.scanDocumentForSubscription()
+                    },
                 )
             }
 
@@ -265,6 +272,10 @@ fun RecurraApp(
                     defaultCurrency = state.vault.settings.baseCurrency,
                     onDismiss = viewModel::closeWarrantyDialog,
                     onSave = viewModel::saveWarranty,
+                    onScanReceipt = {
+                        viewModel.closeWarrantyDialog()
+                        viewModel.scanDocumentForWarranty()
+                    },
                 )
             }
         }

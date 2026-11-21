@@ -20,7 +20,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material.icons.rounded.EventRepeat
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.LocalFlorist
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.TrendingUp
@@ -58,7 +61,10 @@ fun DashboardScreen(
     state: RecurraUiState,
     isWide: Boolean,
     onAddSubscription: () -> Unit,
+    onScanInvoice: () -> Unit,
+    onScanReceipt: () -> Unit,
     onLoadDemoData: () -> Unit,
+    onClearDemoData: () -> Unit,
     onMarkPaid: (String) -> Unit,
     onEditSubscription: (String) -> Unit,
     onOpenSubscriptions: () -> Unit,
@@ -71,12 +77,15 @@ fun DashboardScreen(
         ThemePreference.LIGHT -> false
         ThemePreference.SYSTEM -> isSystemInDarkTheme()
     }
+    val isDemoMode = state.vault.subscriptions.any { it.id.startsWith("demo-") } ||
+        state.vault.warranties.any { it.id.startsWith("war-") }
 
     if (state.vault.subscriptions.isEmpty() && state.vault.warranties.isEmpty()) {
         EmptyDashboardState(
             monthNumber = today.monthNumber,
             isDark = isDark,
             onAddSubscription = onAddSubscription,
+            onScanReceipt = onScanReceipt,
             onLoadDemoData = onLoadDemoData,
         )
         return
@@ -90,6 +99,61 @@ fun DashboardScreen(
         contentPadding = PaddingValues(20.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
+        // Friendly 1-click exit banner whenever Sample Demo Data is active
+        if (isDemoMode) {
+            item {
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    border = BorderStroke(1.dp, RecurraPalette.WarmYellow.copy(alpha = 0.55f)),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Info,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.size(22.dp),
+                            )
+                            Column {
+                                Text(
+                                    text = "You're viewing sample demo data",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                                Text(
+                                    text = "Ready to track your real bills? Clear the demo anytime with one click.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.85f),
+                                )
+                            }
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Button(
+                            onClick = onClearDemoData,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Icon(Icons.Rounded.DeleteSweep, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Clear Demo Data", fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+            }
+        }
         // Warm Botanical Hero Card
         item {
             Card(
@@ -137,17 +201,30 @@ fun DashboardScreen(
                                 )
                             }
                             if (isWide) {
-                                Button(
-                                    onClick = onAddSubscription,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                                    ),
-                                    shape = RoundedCornerShape(14.dp),
-                                ) {
-                                    Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                                    Spacer(Modifier.width(6.dp))
-                                    Text("Add Bill", fontWeight = FontWeight.SemiBold)
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    OutlinedButton(
+                                        onClick = onScanInvoice,
+                                        shape = RoundedCornerShape(14.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            containerColor = if (isDark) Color(0xFF1A241E).copy(alpha = 0.78f) else Color.White.copy(alpha = 0.85f),
+                                        ),
+                                    ) {
+                                        Icon(Icons.Rounded.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(Modifier.width(6.dp))
+                                        Text("Scan Photo / PDF", fontWeight = FontWeight.SemiBold)
+                                    }
+                                    Button(
+                                        onClick = onAddSubscription,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                                        ),
+                                        shape = RoundedCornerShape(14.dp),
+                                    ) {
+                                        Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(Modifier.width(6.dp))
+                                        Text("Add Bill", fontWeight = FontWeight.SemiBold)
+                                    }
                                 }
                             }
                         }
@@ -438,6 +515,7 @@ private fun EmptyDashboardState(
     monthNumber: Int,
     isDark: Boolean,
     onAddSubscription: () -> Unit,
+    onScanReceipt: () -> Unit,
     onLoadDemoData: () -> Unit,
 ) {
     val textColor = if (isDark) Color(0xFFF3F2EC) else Color(0xFF1A2E23)
@@ -484,25 +562,33 @@ private fun EmptyDashboardState(
                         color = textColor,
                     )
                     Text(
-                        text = "A calm, private home for your subscriptions, bills, free trials, and product warranties. Everything stays safely on your device.",
+                        text = "A calm, private home for your subscriptions, bills, free trials, and product warranties. Scan a photo or PDF invoice to auto-fill, or add one manually.",
                         style = MaterialTheme.typography.bodyLarge,
                         color = subColor,
                     )
                     Spacer(Modifier.height(6.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Button(
+                            onClick = onScanReceipt,
+                            shape = RoundedCornerShape(14.dp),
+                        ) {
+                            Icon(Icons.Rounded.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Scan Photo / PDF", fontWeight = FontWeight.SemiBold)
+                        }
+                        OutlinedButton(
                             onClick = onAddSubscription,
                             shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = if (isDark) Color(0xFF1A241E).copy(alpha = 0.78f) else Color.White.copy(alpha = 0.85f),
+                            ),
                         ) {
                             Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(6.dp))
-                            Text("Add First Bill", fontWeight = FontWeight.SemiBold)
+                            Text("Add Manually")
                         }
-                        OutlinedButton(
-                            onClick = onLoadDemoData,
-                            shape = RoundedCornerShape(14.dp),
-                        ) {
-                            Text("Try Sample Data")
+                        TextButton(onClick = onLoadDemoData) {
+                            Text("Try Sample Data", fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }

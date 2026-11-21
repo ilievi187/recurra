@@ -2,6 +2,12 @@
 
 All notable changes to **Recurra** are documented in this file.
 
+## [1.5.0] - 2026-11-21
+
+### Improved
+- **Beginner-Friendly Onboarding & 1-Click Scanning Everywhere:** Added a prominent **Scan Photo / PDF** button directly on the Welcome screen, Dashboard hero card, and inside both the **Add Bill** and **Add Warranty** popups so users can auto-fill from a receipt or invoice immediately.
+- **1-Click Clear Demo Data Banner:** When exploring sample data, a clear banner appears right at the top of the Dashboard with a single **Clear Demo Data** button — no need to hunt through Settings.
+
 ## [1.4.1] - 2026-11-21
 
 ### Fixed
