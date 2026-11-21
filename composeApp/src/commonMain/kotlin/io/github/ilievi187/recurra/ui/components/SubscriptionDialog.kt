@@ -62,7 +62,13 @@ fun SubscriptionDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(if (initial == null) "Add Subscription" else "Edit Subscription")
+            Text(
+                when {
+                    initial == null -> "Add Subscription"
+                    initial.id.isBlank() -> "Review Scanned Bill"
+                    else -> "Edit Subscription"
+                },
+            )
         },
         text = {
             Column(
@@ -254,7 +260,7 @@ fun SubscriptionDialog(
                     }
                 },
             ) {
-                Text(if (initial == null) "Save" else "Update")
+                Text(if (initial == null || initial.id.isBlank()) "Save" else "Update")
             }
         },
         dismissButton = {

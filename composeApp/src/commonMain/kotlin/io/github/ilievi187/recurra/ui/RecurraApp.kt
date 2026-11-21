@@ -208,6 +208,7 @@ fun RecurraApp(
                                     onCategoryFilter = viewModel::filterByCategory,
                                     onSortChange = viewModel::updateSort,
                                     onAdd = viewModel::openAddSubscriptionDialog,
+                                    onScanInvoice = viewModel::scanDocumentForSubscription,
                                     onEdit = viewModel::openEditSubscriptionDialog,
                                     onMarkPaid = viewModel::markSubscriptionPaid,
                                     onToggleStatus = viewModel::toggleSubscriptionStatus,
@@ -224,6 +225,8 @@ fun RecurraApp(
                                 AppDestination.WARRANTIES -> WarrantiesScreen(
                                     state = state,
                                     onAdd = viewModel::openAddWarrantyDialog,
+                                    onScanReceipt = viewModel::scanDocumentForWarranty,
+                                    onOpenAttachment = viewModel::openAttachment,
                                     onEdit = viewModel::openEditWarrantyDialog,
                                     onDelete = viewModel::deleteWarranty,
                                 )

@@ -2,6 +2,13 @@
 
 All notable changes to **Recurra** are documented in this file.
 
+## [1.4.0] - 2026-11-21
+
+### Added
+- **Offline Receipt, Invoice & Warranty Scanner:** Pick any receipt photo (`JPG`/`PNG`/`WEBP`) or `PDF` invoice to automatically extract vendor, product/plan name, total amount & currency, purchase date, warranty period/expiry date, invoice number, and serial number — supporting both **Bulgarian (Cyrillic)** and **English** documents!
+- **Cross-platform Offline OCR & PDF Extraction:** Uses **Apache PDFBox** (embedded, 100% offline) + **Tesseract OCR** (`bul+eng`) on Linux & Windows 11, and **Google ML Kit on-device OCR** (zero extra permissions via Android Storage Access Framework) on Android.
+- **Local Receipt Attachments:** Scanned receipts and PDFs are archived locally inside Recurra's attachments folder and can be reopened directly from saved warranties.
+
 ## [1.3.0] - 2026-11-21
 
 ### Changed

@@ -1,13 +1,18 @@
 # Maintainer: ilievi187 <ilievi187@users.noreply.github.com>
 pkgname=recurra-bin
-pkgver=1.3.0
+pkgver=1.4.0
 pkgrel=1
 pkgdesc="Privacy-first, offline-first subscription, recurring bill, and warranty tracker"
 arch=('x86_64')
 url="https://github.com/ilievi187/recurra"
 license=('MIT')
 depends=('glibc' 'libx11' 'libxext' 'libxi' 'libxrender' 'libxtst' 'freetype2' 'fontconfig' 'alsa-lib')
-optdepends=('libnotify: desktop renewal notifications via notify-send')
+optdepends=(
+    'libnotify: desktop renewal notifications via notify-send'
+    'tesseract: offline OCR scanning for receipt and warranty photos'
+    'tesseract-data-bul: Bulgarian OCR language pack'
+    'tesseract-data-eng: English OCR language pack'
+)
 provides=('recurra')
 conflicts=('recurra')
 options=('!strip')

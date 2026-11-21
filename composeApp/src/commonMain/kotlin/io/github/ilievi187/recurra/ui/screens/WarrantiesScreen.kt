@@ -18,7 +18,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AttachFile
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material3.Button
@@ -28,8 +30,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +49,8 @@ import kotlinx.datetime.daysUntil
 fun WarrantiesScreen(
     state: RecurraUiState,
     onAdd: () -> Unit,
+    onScanReceipt: () -> Unit,
+    onOpenAttachment: (String) -> Unit,
     onEdit: (WarrantyItem) -> Unit,
     onDelete: (String) -> Unit,
 ) {
@@ -60,18 +66,25 @@ fun WarrantiesScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column {
-                Text("Warranties & Assets", style = MaterialTheme.typography.headlineMedium)
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Warranties & Receipts", style = MaterialTheme.typography.headlineMedium)
                 Text(
-                    text = "${sorted.size} tracked item(s) · receipts, serials & expiry dates",
+                    text = "${sorted.size} saved item(s) · scan a photo or PDF to auto-fill",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Button(onClick = onAdd) {
-                Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Add Warranty")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onScanReceipt) {
+                    Icon(Icons.Rounded.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Scan Receipt")
+                }
+                Button(onClick = onAdd) {
+                    Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Add")
+                }
             }
         }
 
@@ -183,12 +196,27 @@ fun WarrantiesScreen(
                                 Text(item.notes, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
 
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                                IconButton(onClick = { onEdit(item) }) {
-                                    Icon(Icons.Rounded.Edit, contentDescription = "Edit", modifier = Modifier.size(20.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                if (item.attachmentPath.isNotBlank()) {
+                                    TextButton(onClick = { onOpenAttachment(item.attachmentPath) }) {
+                                        Icon(Icons.Rounded.AttachFile, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(Modifier.width(4.dp))
+                                        Text("Open Receipt")
+                                    }
+                                } else {
+                                    Spacer(Modifier.width(1.dp))
                                 }
-                                IconButton(onClick = { onDelete(item.id) }) {
-                                    Icon(Icons.Rounded.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+                                Row {
+                                    IconButton(onClick = { onEdit(item) }) {
+                                        Icon(Icons.Rounded.Edit, contentDescription = "Edit", modifier = Modifier.size(20.dp))
+                                    }
+                                    IconButton(onClick = { onDelete(item.id) }) {
+                                        Icon(Icons.Rounded.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+                                    }
                                 }
                             }
                         }

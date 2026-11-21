@@ -75,6 +75,7 @@ data class WarrantyItem(
     val serialNumber: String = "",
     val receiptReference: String = "",
     val notes: String = "",
+    val attachmentPath: String = "",
 )
 
 @Serializable

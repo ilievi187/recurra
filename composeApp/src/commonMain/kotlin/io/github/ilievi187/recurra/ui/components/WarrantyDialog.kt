@@ -44,11 +44,20 @@ fun WarrantyDialog(
     var serialNumber by remember { mutableStateOf(initial?.serialNumber.orEmpty()) }
     var receiptRef by remember { mutableStateOf(initial?.receiptReference.orEmpty()) }
     var notes by remember { mutableStateOf(initial?.notes.orEmpty()) }
+    val attachmentPath = initial?.attachmentPath.orEmpty()
     var errorText by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initial == null) "Add Warranty / Asset" else "Edit Warranty") },
+        title = {
+            Text(
+                when {
+                    initial == null -> "Add Warranty / Asset"
+                    initial.id.isBlank() -> "Review Scanned Warranty"
+                    else -> "Edit Warranty"
+                },
+            )
+        },
         text = {
             Column(
                 modifier = Modifier
@@ -135,6 +144,13 @@ fun WarrantyDialog(
                     minLines = 2,
                     modifier = Modifier.fillMaxWidth(),
                 )
+                if (attachmentPath.isNotBlank()) {
+                    Text(
+                        text = "Attached receipt: ${attachmentPath.substringAfterLast('/').substringAfterLast('\\')}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
                 if (errorText != null) {
                     Text(errorText!!, color = MaterialTheme.colorScheme.error)
                 }
@@ -163,13 +179,14 @@ fun WarrantyDialog(
                                     serialNumber = serialNumber.trim(),
                                     receiptReference = receiptRef.trim(),
                                     notes = notes.trim(),
+                                    attachmentPath = attachmentPath,
                                 ),
                             )
                         }
                     }
                 },
             ) {
-                Text(if (initial == null) "Save" else "Update")
+                Text(if (initial == null || initial.id.isBlank()) "Save" else "Update")
             }
         },
         dismissButton = {
