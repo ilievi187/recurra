@@ -184,20 +184,20 @@ object DocumentParser {
 
     private fun detectInvoiceNumber(text: String): String {
         val regex = Regex(
-            """(?i)(?:фактура\s*(?:№|no\.?|n|#)?|invoice\s*(?:no\.?|#|:)?|order\s*(?:no\.?|#|:)?|поръчка\s*(?:№|#)?|receipt\s*(?:no\.?|#|:)?)\s*[:#№]?\s*([A-Z0-9][A-Z0-9\-/]{3,24})""",
+            """(?iu)(?:фактура\s*(?:№|no\.?|n|#)?|invoice\s*(?:no\.?|#|:)?|order\s*(?:no\.?|#|:)?|поръчка\s*(?:№|#)?|receipt\s*(?:no\.?|#|:)?)\s*[:#№]?\s*([A-Z0-9][A-Z0-9\-/]{3,24})""",
         )
         return regex.find(text)?.groupValues?.get(1)?.trim().orEmpty()
     }
 
     private fun detectSerialNumber(text: String): String {
         val regex = Regex(
-            """(?i)(?:s/n|serial(?:\s*(?:no\.?|number|#))?|сериен\s*(?:№|номер)?|imei)\s*[:#№]?\s*([A-Z0-9][A-Z0-9\-]{4,28})""",
+            """(?iu)(?:s/n|serial(?:\s*(?:no\.?|number|#))?|сериен\s*(?:№|номер)?|imei)\s*[:#№]?\s*([A-Z0-9][A-Z0-9\-]{4,28})""",
         )
         return regex.find(text)?.groupValues?.get(1)?.trim().orEmpty()
     }
 
     private fun detectVendor(lines: List<String>): String {
-        val companyHint = Regex("""(?i)\b(eood|ood|ad|ltd|llc|inc|gmbh|еоод|оод|ад|еад)\b""")
+        val companyHint = Regex("""(?iu)\b(eood|ood|ad|ltd|llc|inc|gmbh|еоод|оод|ад|еад)\b""")
         lines.take(8).firstOrNull { companyHint.containsMatchIn(it) }?.let { return it.take(60) }
 
         val skipHeader = listOf("invoice", "фактура", "receipt", "касова", "гаранция", "warranty", "оригинал", "original")
@@ -208,7 +208,7 @@ object DocumentParser {
     }
 
     private fun detectProductOrServiceTitle(lines: List<String>, vendor: String): String {
-        val itemLabelRegex = Regex("""(?i)(?:продукт|артикул|изделие|модел|услуга|product|item|model|description|plan)\s*[:\-]\s*(.+)""")
+        val itemLabelRegex = Regex("""(?iu)(?:продукт|артикул|изделие|модел|услуга|product|item|model|description|plan)\s*[:\-]\s*(.+)""")
         for (line in lines) {
             itemLabelRegex.find(line)?.groupValues?.get(1)?.trim()?.takeIf { it.length >= 3 }?.let {
                 return it.take(80)
