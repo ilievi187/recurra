@@ -20,13 +20,25 @@ class MainActivity : ComponentActivity() {
         DocumentScanner.onDocumentPicked(uri)
     }
 
+    private val takePictureLauncher = registerForActivityResult(
+        ActivityResultContracts.TakePicture(),
+    ) { success ->
+        DocumentScanner.onCameraCaptured(success)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         VaultStorage.init(applicationContext)
-        DocumentScanner.bind(applicationContext) {
-            openDocLauncher.launch(arrayOf("image/*", "application/pdf", "text/plain"))
-        }
+        DocumentScanner.bind(
+            context = applicationContext,
+            pickerLauncher = {
+                openDocLauncher.launch(arrayOf("image/*", "application/pdf", "text/plain"))
+            },
+            cameraLauncher = { outputUri ->
+                takePictureLauncher.launch(outputUri)
+            },
+        )
         viewModel = RecurraViewModel(VaultRepository())
 
         setContent {

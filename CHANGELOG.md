@@ -2,6 +2,13 @@
 
 All notable changes to **Recurra** are documented in this file.
 
+## [1.6.0] - 2026-11-21
+
+### Added
+- **Separate Camera Capture (`Take Photo`) & File Upload (`Upload File`):** Split scanning into two clear actions everywhere (Welcome screen, Dashboard, Bills, Warranties, and inside Add popups):
+  - **Take Photo** launches the available camera (native Android Camera via `FileProvider` + `TakePicture`, Linux `/dev/video*` webcam via `ffmpeg`/`fswebcam`, Windows camera) and immediately runs offline OCR to auto-fill fields.
+  - **Upload File** opens the native file/gallery picker to upload an existing PDF invoice or photo (`JPG`/`PNG`/`WEBP`).
+
 ## [1.5.0] - 2026-11-21
 
 ### Improved

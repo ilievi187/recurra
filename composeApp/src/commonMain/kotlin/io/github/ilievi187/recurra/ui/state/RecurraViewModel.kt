@@ -228,77 +228,107 @@ class RecurraViewModel(
     }
 
     fun scanDocumentForWarranty() {
-        showMessage("Select a receipt, invoice, or warranty (JPG, PNG, or PDF)...")
+        showMessage("Select a receipt, invoice, or warranty file (JPG, PNG, or PDF)...")
         DocumentScanner.pickAndScanDocument { outcome ->
-            val base = _uiState.value.vault.settings.baseCurrency
-            val parsed = if (outcome.rawText.isNotBlank()) {
-                DocumentParser.parse(outcome.rawText, defaultCurrency = base)
-            } else {
-                null
-            }
-            val today = FinanceCalculator.today()
-            val prefilled = WarrantyItem(
-                id = "",
-                productName = parsed?.title.orEmpty(),
-                brand = "",
-                purchaseDate = parsed?.purchaseDate ?: today.toString(),
-                expiryDate = parsed?.expiryDate ?: today.toString(),
-                purchasePrice = parsed?.amount ?: 0.0,
-                currency = parsed?.currency ?: base,
-                vendor = parsed?.vendor.orEmpty(),
-                serialNumber = parsed?.serialNumber.orEmpty(),
-                receiptReference = parsed?.invoiceNumber.orEmpty(),
-                notes = if (parsed != null) "Auto-scanned (${outcome.engineNote})" else outcome.engineNote,
-                attachmentPath = outcome.attachmentPath,
+            applyWarrantyScanOutcome(outcome)
+        }
+    }
+
+    fun captureCameraForWarranty() {
+        showMessage("Opening camera to scan receipt or warranty...")
+        DocumentScanner.captureFromCamera { outcome ->
+            applyWarrantyScanOutcome(outcome)
+        }
+    }
+
+    private fun applyWarrantyScanOutcome(outcome: io.github.ilievi187.recurra.data.ScanOutcome) {
+        if (outcome.attachmentPath.isBlank() && outcome.error != null) {
+            showMessage(outcome.error)
+            return
+        }
+        val base = _uiState.value.vault.settings.baseCurrency
+        val parsed = if (outcome.rawText.isNotBlank()) {
+            DocumentParser.parse(outcome.rawText, defaultCurrency = base)
+        } else {
+            null
+        }
+        val today = FinanceCalculator.today()
+        val prefilled = WarrantyItem(
+            id = "",
+            productName = parsed?.title.orEmpty(),
+            brand = "",
+            purchaseDate = parsed?.purchaseDate ?: today.toString(),
+            expiryDate = parsed?.expiryDate ?: today.toString(),
+            purchasePrice = parsed?.amount ?: 0.0,
+            currency = parsed?.currency ?: base,
+            vendor = parsed?.vendor.orEmpty(),
+            serialNumber = parsed?.serialNumber.orEmpty(),
+            receiptReference = parsed?.invoiceNumber.orEmpty(),
+            notes = if (parsed != null) "Auto-scanned (${outcome.engineNote})" else outcome.engineNote,
+            attachmentPath = outcome.attachmentPath,
+        )
+        _uiState.update {
+            it.copy(
+                showWarrantyDialog = true,
+                editingWarranty = prefilled,
+                statusMessage = outcome.error ?: "Scanned! ${parsed?.summary.orEmpty()}",
             )
-            _uiState.update {
-                it.copy(
-                    showWarrantyDialog = true,
-                    editingWarranty = prefilled,
-                    statusMessage = outcome.error ?: "Scanned! ${parsed?.summary.orEmpty()}",
-                )
-            }
         }
     }
 
     fun scanDocumentForSubscription() {
-        showMessage("Select a bill or invoice (JPG, PNG, or PDF)...")
+        showMessage("Select a bill or invoice file (JPG, PNG, or PDF)...")
         DocumentScanner.pickAndScanDocument { outcome ->
-            val base = _uiState.value.vault.settings.baseCurrency
-            val parsed = if (outcome.rawText.isNotBlank()) {
-                DocumentParser.parse(outcome.rawText, defaultCurrency = base)
-            } else {
-                null
-            }
-            val nextDate = parsed?.let {
-                FinanceCalculator.parseDateOrNull(it.purchaseDate)?.let { d ->
-                    FinanceCalculator.advanceDateByCycle(d, it.billingCycle)
-                }
-            } ?: FinanceCalculator.today()
+            applySubscriptionScanOutcome(outcome)
+        }
+    }
 
-            val prefilled = Subscription(
-                id = "",
-                name = parsed?.title?.ifBlank { parsed.vendor }.orEmpty(),
-                amount = parsed?.amount ?: 0.0,
-                currency = parsed?.currency ?: base,
-                cycle = parsed?.billingCycle ?: io.github.ilievi187.recurra.domain.BillingCycle.MONTHLY,
-                nextRenewalDate = nextDate.toString(),
-                notes = buildString {
-                    if (parsed != null) {
-                        append("Scanned (${outcome.engineNote})")
-                        if (parsed.invoiceNumber.isNotBlank()) append(" · Ref ${parsed.invoiceNumber}")
-                    } else {
-                        append(outcome.engineNote)
-                    }
-                },
-            )
-            _uiState.update {
-                it.copy(
-                    showSubscriptionDialog = true,
-                    editingSubscription = prefilled,
-                    statusMessage = outcome.error ?: "Scanned! ${parsed?.summary.orEmpty()}",
-                )
+    fun captureCameraForSubscription() {
+        showMessage("Opening camera to scan bill or invoice...")
+        DocumentScanner.captureFromCamera { outcome ->
+            applySubscriptionScanOutcome(outcome)
+        }
+    }
+
+    private fun applySubscriptionScanOutcome(outcome: io.github.ilievi187.recurra.data.ScanOutcome) {
+        if (outcome.attachmentPath.isBlank() && outcome.error != null) {
+            showMessage(outcome.error)
+            return
+        }
+        val base = _uiState.value.vault.settings.baseCurrency
+        val parsed = if (outcome.rawText.isNotBlank()) {
+            DocumentParser.parse(outcome.rawText, defaultCurrency = base)
+        } else {
+            null
+        }
+        val nextDate = parsed?.let {
+            FinanceCalculator.parseDateOrNull(it.purchaseDate)?.let { d ->
+                FinanceCalculator.advanceDateByCycle(d, it.billingCycle)
             }
+        } ?: FinanceCalculator.today()
+
+        val prefilled = Subscription(
+            id = "",
+            name = parsed?.title?.ifBlank { parsed.vendor }.orEmpty(),
+            amount = parsed?.amount ?: 0.0,
+            currency = parsed?.currency ?: base,
+            cycle = parsed?.billingCycle ?: io.github.ilievi187.recurra.domain.BillingCycle.MONTHLY,
+            nextRenewalDate = nextDate.toString(),
+            notes = buildString {
+                if (parsed != null) {
+                    append("Scanned (${outcome.engineNote})")
+                    if (parsed.invoiceNumber.isNotBlank()) append(" · Ref ${parsed.invoiceNumber}")
+                } else {
+                    append(outcome.engineNote)
+                }
+            },
+        )
+        _uiState.update {
+            it.copy(
+                showSubscriptionDialog = true,
+                editingSubscription = prefilled,
+                statusMessage = outcome.error ?: "Scanned! ${parsed?.summary.orEmpty()}",
+            )
         }
     }
 

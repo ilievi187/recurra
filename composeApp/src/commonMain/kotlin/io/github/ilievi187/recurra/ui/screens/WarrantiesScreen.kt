@@ -20,9 +20,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.AttachFile
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material.icons.rounded.UploadFile
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -49,7 +50,8 @@ import kotlinx.datetime.daysUntil
 fun WarrantiesScreen(
     state: RecurraUiState,
     onAdd: () -> Unit,
-    onScanReceipt: () -> Unit,
+    onTakePhoto: () -> Unit,
+    onUploadFile: () -> Unit,
     onOpenAttachment: (String) -> Unit,
     onEdit: (WarrantyItem) -> Unit,
     onDelete: (String) -> Unit,
@@ -69,16 +71,21 @@ fun WarrantiesScreen(
             Column(modifier = Modifier.weight(1f)) {
                 Text("Warranties & Receipts", style = MaterialTheme.typography.headlineMedium)
                 Text(
-                    text = "${sorted.size} saved item(s) · scan a photo or PDF to auto-fill",
+                    text = "${sorted.size} saved item(s) · take a photo or upload a PDF/image",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = onScanReceipt) {
-                    Icon(Icons.Rounded.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                OutlinedButton(onClick = onTakePhoto) {
+                    Icon(Icons.Rounded.PhotoCamera, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Scan Receipt")
+                    Text("Take Photo")
+                }
+                OutlinedButton(onClick = onUploadFile) {
+                    Icon(Icons.Rounded.UploadFile, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Upload File")
                 }
                 Button(onClick = onAdd) {
                     Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))

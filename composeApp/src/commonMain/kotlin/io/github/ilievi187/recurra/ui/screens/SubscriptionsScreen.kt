@@ -24,12 +24,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.PauseCircle
+import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.UploadFile
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -65,7 +66,8 @@ fun SubscriptionsScreen(
     onCategoryFilter: (SubscriptionCategory?) -> Unit,
     onSortChange: (SubscriptionSort) -> Unit,
     onAdd: () -> Unit,
-    onScanInvoice: () -> Unit,
+    onTakePhoto: () -> Unit,
+    onUploadFile: () -> Unit,
     onEdit: (Subscription) -> Unit,
     onMarkPaid: (String) -> Unit,
     onToggleStatus: (String) -> Unit,
@@ -120,10 +122,15 @@ fun SubscriptionsScreen(
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = onScanInvoice) {
-                    Icon(Icons.Rounded.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                OutlinedButton(onClick = onTakePhoto) {
+                    Icon(Icons.Rounded.PhotoCamera, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Scan Invoice")
+                    Text("Take Photo")
+                }
+                OutlinedButton(onClick = onUploadFile) {
+                    Icon(Icons.Rounded.UploadFile, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Upload File")
                 }
                 if (isWide) {
                     Button(onClick = onAdd) {

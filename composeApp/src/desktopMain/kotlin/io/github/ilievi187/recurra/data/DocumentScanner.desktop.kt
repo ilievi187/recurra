@@ -53,6 +53,89 @@ actual object DocumentScanner {
         }
     }
 
+    actual fun captureFromCamera(onResult: (ScanOutcome) -> Unit) {
+        thread(start = true, isDaemon = true, name = "recurra-camera-capture") {
+            val outFile = File(attachmentsDir(), "${System.currentTimeMillis()}-camera.jpg")
+            val os = System.getProperty("os.name").lowercase()
+
+            val captured = when {
+                os.contains("linux") -> captureLinuxCamera(outFile)
+                os.contains("win") -> captureWindowsCamera(outFile)
+                else -> false
+            }
+
+            if (captured && outFile.exists() && outFile.length() > 1000) {
+                val ocr = extractWithTesseract(outFile, outFile.absolutePath)
+                onResult(ocr.copy(engineNote = "Camera photo · ${ocr.engineNote}"))
+            } else {
+                if (outFile.exists()) outFile.delete()
+                val hint = if (os.contains("linux")) {
+                    "No working webcam capture found (tried /dev/video0..3 with ffmpeg/fswebcam). Check your camera or use Upload File."
+                } else {
+                    "Could not capture directly from camera. Opening system Camera app — save your photo and use Upload File."
+                }
+                if (os.contains("win")) {
+                    runCatching { ProcessBuilder("cmd", "/c", "start", "microsoft.windows.camera:").start() }
+                }
+                onResult(ScanOutcome("", "", "Camera unavailable", hint))
+            }
+        }
+    }
+
+    private fun captureLinuxCamera(outFile: File): Boolean {
+        val devices = (0..3).map { "/dev/video$it" }.filter { File(it).exists() }
+        if (devices.isEmpty()) return false
+
+        if (isCommandAvailable("ffmpeg")) {
+            for (dev in devices) {
+                val ok = runCatching {
+                    val proc = ProcessBuilder(
+                        "ffmpeg", "-y", "-loglevel", "error",
+                        "-f", "v4l2", "-i", dev,
+                        "-frames:v", "1", "-q:v", "2",
+                        outFile.absolutePath,
+                    ).redirectErrorStream(true).start()
+                    proc.waitFor() == 0 && outFile.exists() && outFile.length() > 1000
+                }.getOrDefault(false)
+                if (ok) return true
+            }
+        }
+
+        if (isCommandAvailable("fswebcam")) {
+            for (dev in devices) {
+                val ok = runCatching {
+                    val proc = ProcessBuilder(
+                        "fswebcam", "-d", dev, "-r", "1280x720", "--no-banner", outFile.absolutePath,
+                    ).redirectErrorStream(true).start()
+                    proc.waitFor() == 0 && outFile.exists() && outFile.length() > 1000
+                }.getOrDefault(false)
+                if (ok) return true
+            }
+        }
+        return false
+    }
+
+    private fun captureWindowsCamera(outFile: File): Boolean {
+        // Best-effort ffmpeg DirectShow capture if ffmpeg is on PATH
+        if (!isCommandAvailable("ffmpeg")) return false
+        return runCatching {
+            val listProc = ProcessBuilder("ffmpeg", "-list_devices", "true", "-f", "dshow", "-i", "dummy")
+                .redirectErrorStream(true)
+                .start()
+            val output = listProc.inputStream.bufferedReader(Charsets.UTF_8).readText()
+            listProc.waitFor()
+            val camName = Regex("\"([^\"]+)\"\\s*\\(video\\)").find(output)?.groupValues?.get(1)
+                ?: return@runCatching false
+            val capProc = ProcessBuilder(
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-f", "dshow", "-i", "video=$camName",
+                "-frames:v", "1", "-q:v", "2",
+                outFile.absolutePath,
+            ).redirectErrorStream(true).start()
+            capProc.waitFor() == 0 && outFile.exists() && outFile.length() > 1000
+        }.getOrDefault(false)
+    }
+
     private fun pickFileNative(): File? {
         val os = System.getProperty("os.name").lowercase()
         if (os.contains("linux")) {

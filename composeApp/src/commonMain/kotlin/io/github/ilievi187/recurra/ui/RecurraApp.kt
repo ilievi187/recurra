@@ -191,8 +191,8 @@ fun RecurraApp(
                                     state = state,
                                     isWide = isWide,
                                     onAddSubscription = viewModel::openAddSubscriptionDialog,
-                                    onScanInvoice = viewModel::scanDocumentForSubscription,
-                                    onScanReceipt = viewModel::scanDocumentForWarranty,
+                                    onTakePhoto = viewModel::captureCameraForWarranty,
+                                    onUploadFile = viewModel::scanDocumentForWarranty,
                                     onLoadDemoData = viewModel::loadDemoData,
                                     onClearDemoData = viewModel::clearAllData,
                                     onMarkPaid = viewModel::markSubscriptionPaid,
@@ -211,7 +211,8 @@ fun RecurraApp(
                                     onCategoryFilter = viewModel::filterByCategory,
                                     onSortChange = viewModel::updateSort,
                                     onAdd = viewModel::openAddSubscriptionDialog,
-                                    onScanInvoice = viewModel::scanDocumentForSubscription,
+                                    onTakePhoto = viewModel::captureCameraForSubscription,
+                                    onUploadFile = viewModel::scanDocumentForSubscription,
                                     onEdit = viewModel::openEditSubscriptionDialog,
                                     onMarkPaid = viewModel::markSubscriptionPaid,
                                     onToggleStatus = viewModel::toggleSubscriptionStatus,
@@ -228,7 +229,8 @@ fun RecurraApp(
                                 AppDestination.WARRANTIES -> WarrantiesScreen(
                                     state = state,
                                     onAdd = viewModel::openAddWarrantyDialog,
-                                    onScanReceipt = viewModel::scanDocumentForWarranty,
+                                    onTakePhoto = viewModel::captureCameraForWarranty,
+                                    onUploadFile = viewModel::scanDocumentForWarranty,
                                     onOpenAttachment = viewModel::openAttachment,
                                     onEdit = viewModel::openEditWarrantyDialog,
                                     onDelete = viewModel::deleteWarranty,
@@ -259,7 +261,11 @@ fun RecurraApp(
                     defaultCurrency = state.vault.settings.baseCurrency,
                     onDismiss = viewModel::closeSubscriptionDialog,
                     onSave = viewModel::saveSubscription,
-                    onScanInvoice = {
+                    onTakePhoto = {
+                        viewModel.closeSubscriptionDialog()
+                        viewModel.captureCameraForSubscription()
+                    },
+                    onUploadFile = {
                         viewModel.closeSubscriptionDialog()
                         viewModel.scanDocumentForSubscription()
                     },
@@ -272,7 +278,11 @@ fun RecurraApp(
                     defaultCurrency = state.vault.settings.baseCurrency,
                     onDismiss = viewModel::closeWarrantyDialog,
                     onSave = viewModel::saveWarranty,
-                    onScanReceipt = {
+                    onTakePhoto = {
+                        viewModel.closeWarrantyDialog()
+                        viewModel.captureCameraForWarranty()
+                    },
+                    onUploadFile = {
                         viewModel.closeWarrantyDialog()
                         viewModel.scanDocumentForWarranty()
                     },

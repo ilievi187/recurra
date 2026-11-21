@@ -13,7 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.DocumentScanner
+import androidx.compose.material.icons.rounded.PhotoCamera
+import androidx.compose.material.icons.rounded.UploadFile
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
@@ -46,7 +47,8 @@ fun SubscriptionDialog(
     defaultCurrency: String,
     onDismiss: () -> Unit,
     onSave: (Subscription) -> Unit,
-    onScanInvoice: (() -> Unit)? = null,
+    onTakePhoto: (() -> Unit)? = null,
+    onUploadFile: (() -> Unit)? = null,
 ) {
     var name by remember { mutableStateOf(initial?.name.orEmpty()) }
     var amountText by remember { mutableStateOf(initial?.amount?.toString().orEmpty()) }
@@ -83,14 +85,31 @@ fun SubscriptionDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                if (onScanInvoice != null && (initial == null || initial.id.isBlank())) {
-                    FilledTonalButton(
-                        onClick = onScanInvoice,
+                if ((onTakePhoto != null || onUploadFile != null) && (initial == null || initial.id.isBlank())) {
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Icon(Icons.Rounded.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("Scan Photo or PDF Invoice to Auto-Fill")
+                        if (onTakePhoto != null) {
+                            FilledTonalButton(
+                                onClick = onTakePhoto,
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Icon(Icons.Rounded.PhotoCamera, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(6.dp))
+                                Text("Take Photo")
+                            }
+                        }
+                        if (onUploadFile != null) {
+                            FilledTonalButton(
+                                onClick = onUploadFile,
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Icon(Icons.Rounded.UploadFile, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(6.dp))
+                                Text("Upload File")
+                            }
+                        }
                     }
                 }
                 OutlinedTextField(

@@ -21,12 +21,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.DeleteSweep
-import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material.icons.rounded.EventRepeat
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.LocalFlorist
+import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.TrendingUp
+import androidx.compose.material.icons.rounded.UploadFile
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -61,8 +62,8 @@ fun DashboardScreen(
     state: RecurraUiState,
     isWide: Boolean,
     onAddSubscription: () -> Unit,
-    onScanInvoice: () -> Unit,
-    onScanReceipt: () -> Unit,
+    onTakePhoto: () -> Unit,
+    onUploadFile: () -> Unit,
     onLoadDemoData: () -> Unit,
     onClearDemoData: () -> Unit,
     onMarkPaid: (String) -> Unit,
@@ -85,7 +86,8 @@ fun DashboardScreen(
             monthNumber = today.monthNumber,
             isDark = isDark,
             onAddSubscription = onAddSubscription,
-            onScanReceipt = onScanReceipt,
+            onTakePhoto = onTakePhoto,
+            onUploadFile = onUploadFile,
             onLoadDemoData = onLoadDemoData,
         )
         return
@@ -203,15 +205,26 @@ fun DashboardScreen(
                             if (isWide) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     OutlinedButton(
-                                        onClick = onScanInvoice,
+                                        onClick = onTakePhoto,
                                         shape = RoundedCornerShape(14.dp),
                                         colors = ButtonDefaults.outlinedButtonColors(
                                             containerColor = if (isDark) Color(0xFF1A241E).copy(alpha = 0.78f) else Color.White.copy(alpha = 0.85f),
                                         ),
                                     ) {
-                                        Icon(Icons.Rounded.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Icon(Icons.Rounded.PhotoCamera, contentDescription = null, modifier = Modifier.size(18.dp))
                                         Spacer(Modifier.width(6.dp))
-                                        Text("Scan Photo / PDF", fontWeight = FontWeight.SemiBold)
+                                        Text("Take Photo", fontWeight = FontWeight.SemiBold)
+                                    }
+                                    OutlinedButton(
+                                        onClick = onUploadFile,
+                                        shape = RoundedCornerShape(14.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            containerColor = if (isDark) Color(0xFF1A241E).copy(alpha = 0.78f) else Color.White.copy(alpha = 0.85f),
+                                        ),
+                                    ) {
+                                        Icon(Icons.Rounded.UploadFile, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(Modifier.width(6.dp))
+                                        Text("Upload File", fontWeight = FontWeight.SemiBold)
                                     }
                                     Button(
                                         onClick = onAddSubscription,
@@ -515,7 +528,8 @@ private fun EmptyDashboardState(
     monthNumber: Int,
     isDark: Boolean,
     onAddSubscription: () -> Unit,
-    onScanReceipt: () -> Unit,
+    onTakePhoto: () -> Unit,
+    onUploadFile: () -> Unit,
     onLoadDemoData: () -> Unit,
 ) {
     val textColor = if (isDark) Color(0xFFF3F2EC) else Color(0xFF1A2E23)
@@ -562,19 +576,30 @@ private fun EmptyDashboardState(
                         color = textColor,
                     )
                     Text(
-                        text = "A calm, private home for your subscriptions, bills, free trials, and product warranties. Scan a photo or PDF invoice to auto-fill, or add one manually.",
+                        text = "A calm, private home for your subscriptions, bills, free trials, and product warranties. Take a photo with your camera, upload a PDF/image, or add one manually.",
                         style = MaterialTheme.typography.bodyLarge,
                         color = subColor,
                     )
                     Spacer(Modifier.height(6.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Button(
-                            onClick = onScanReceipt,
+                            onClick = onTakePhoto,
                             shape = RoundedCornerShape(14.dp),
                         ) {
-                            Icon(Icons.Rounded.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Rounded.PhotoCamera, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(6.dp))
-                            Text("Scan Photo / PDF", fontWeight = FontWeight.SemiBold)
+                            Text("Take Photo", fontWeight = FontWeight.SemiBold)
+                        }
+                        OutlinedButton(
+                            onClick = onUploadFile,
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = if (isDark) Color(0xFF1A241E).copy(alpha = 0.78f) else Color.White.copy(alpha = 0.85f),
+                            ),
+                        ) {
+                            Icon(Icons.Rounded.UploadFile, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Upload PDF / Image")
                         }
                         OutlinedButton(
                             onClick = onAddSubscription,
@@ -587,9 +612,9 @@ private fun EmptyDashboardState(
                             Spacer(Modifier.width(6.dp))
                             Text("Add Manually")
                         }
-                        TextButton(onClick = onLoadDemoData) {
-                            Text("Try Sample Data", fontWeight = FontWeight.SemiBold)
-                        }
+                    }
+                    TextButton(onClick = onLoadDemoData) {
+                        Text("Or try Sample Demo Data first", fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
