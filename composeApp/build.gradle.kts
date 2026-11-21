@@ -44,6 +44,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.activity.compose)
+            implementation("androidx.fragment:fragment-ktx:1.8.5")
             implementation(libs.mlkit.text.recognition)
         }
 
