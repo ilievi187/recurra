@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.ilievi187.recurra.ui.components.CameraPreviewDialog
 import io.github.ilievi187.recurra.ui.components.SubscriptionDialog
 import io.github.ilievi187.recurra.ui.components.WarrantyDialog
 import io.github.ilievi187.recurra.ui.screens.AnalyticsScreen
@@ -191,7 +192,10 @@ fun RecurraApp(
                                     state = state,
                                     isWide = isWide,
                                     onAddSubscription = viewModel::openAddSubscriptionDialog,
-                                    onTakePhoto = viewModel::captureCameraForWarranty,
+                                    onTakePhoto = {
+                                        if (isDesktop) viewModel.openCameraDialog(forWarranty = true)
+                                        else viewModel.captureCameraForWarranty()
+                                    },
                                     onUploadFile = viewModel::scanDocumentForWarranty,
                                     onLoadDemoData = viewModel::loadDemoData,
                                     onClearDemoData = viewModel::clearAllData,
@@ -211,7 +215,10 @@ fun RecurraApp(
                                     onCategoryFilter = viewModel::filterByCategory,
                                     onSortChange = viewModel::updateSort,
                                     onAdd = viewModel::openAddSubscriptionDialog,
-                                    onTakePhoto = viewModel::captureCameraForSubscription,
+                                    onTakePhoto = {
+                                        if (isDesktop) viewModel.openCameraDialog(forWarranty = false)
+                                        else viewModel.captureCameraForSubscription()
+                                    },
                                     onUploadFile = viewModel::scanDocumentForSubscription,
                                     onEdit = viewModel::openEditSubscriptionDialog,
                                     onMarkPaid = viewModel::markSubscriptionPaid,
@@ -229,7 +236,10 @@ fun RecurraApp(
                                 AppDestination.WARRANTIES -> WarrantiesScreen(
                                     state = state,
                                     onAdd = viewModel::openAddWarrantyDialog,
-                                    onTakePhoto = viewModel::captureCameraForWarranty,
+                                    onTakePhoto = {
+                                        if (isDesktop) viewModel.openCameraDialog(forWarranty = true)
+                                        else viewModel.captureCameraForWarranty()
+                                    },
                                     onUploadFile = viewModel::scanDocumentForWarranty,
                                     onOpenAttachment = viewModel::openAttachment,
                                     onEdit = viewModel::openEditWarrantyDialog,
@@ -263,7 +273,8 @@ fun RecurraApp(
                     onSave = viewModel::saveSubscription,
                     onTakePhoto = {
                         viewModel.closeSubscriptionDialog()
-                        viewModel.captureCameraForSubscription()
+                        if (isDesktop) viewModel.openCameraDialog(forWarranty = false)
+                        else viewModel.captureCameraForSubscription()
                     },
                     onUploadFile = {
                         viewModel.closeSubscriptionDialog()
@@ -280,12 +291,20 @@ fun RecurraApp(
                     onSave = viewModel::saveWarranty,
                     onTakePhoto = {
                         viewModel.closeWarrantyDialog()
-                        viewModel.captureCameraForWarranty()
+                        if (isDesktop) viewModel.openCameraDialog(forWarranty = true)
+                        else viewModel.captureCameraForWarranty()
                     },
                     onUploadFile = {
                         viewModel.closeWarrantyDialog()
                         viewModel.scanDocumentForWarranty()
                     },
+                )
+            }
+
+            if (state.showCameraDialog) {
+                CameraPreviewDialog(
+                    onDismiss = viewModel::closeCameraDialog,
+                    onCaptured = viewModel::handleCameraScanResult,
                 )
             }
         }

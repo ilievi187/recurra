@@ -46,6 +46,8 @@ data class RecurraUiState(
     val editingSubscription: Subscription? = null,
     val showWarrantyDialog: Boolean = false,
     val editingWarranty: WarrantyItem? = null,
+    val showCameraDialog: Boolean = false,
+    val cameraTargetIsWarranty: Boolean = true,
     val statusMessage: String? = null,
     val exportFiles: List<String> = emptyList(),
 )
@@ -231,6 +233,24 @@ class RecurraViewModel(
         showMessage("Select a receipt, invoice, or warranty file (JPG, PNG, or PDF)...")
         DocumentScanner.pickAndScanDocument { outcome ->
             applyWarrantyScanOutcome(outcome)
+        }
+    }
+
+    fun openCameraDialog(forWarranty: Boolean) {
+        _uiState.update { it.copy(showCameraDialog = true, cameraTargetIsWarranty = forWarranty) }
+    }
+
+    fun closeCameraDialog() {
+        _uiState.update { it.copy(showCameraDialog = false) }
+    }
+
+    fun handleCameraScanResult(outcome: io.github.ilievi187.recurra.data.ScanOutcome) {
+        val forWarranty = _uiState.value.cameraTargetIsWarranty
+        _uiState.update { it.copy(showCameraDialog = false) }
+        if (forWarranty) {
+            applyWarrantyScanOutcome(outcome)
+        } else {
+            applySubscriptionScanOutcome(outcome)
         }
     }
 

@@ -64,8 +64,8 @@ android {
         applicationId = "io.github.ilievi187.recurra"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 9
-        versionName = "1.6.0"
+        versionCode = 10
+        versionName = "1.7.0"
     }
 
     packaging {
@@ -117,7 +117,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Deb, TargetFormat.Rpm, TargetFormat.Msi, TargetFormat.Exe)
             packageName = "Recurra"
-            packageVersion = "1.6.0"
+            packageVersion = "1.7.0"
             description = "Privacy-first, offline-first subscription, recurring bill, and warranty tracker."
             vendor = "ilievi187"
             copyright = "Copyright (c) 2026 ilievi187. Licensed under MIT."

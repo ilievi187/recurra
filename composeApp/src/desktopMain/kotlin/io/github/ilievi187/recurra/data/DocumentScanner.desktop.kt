@@ -53,6 +53,17 @@ actual object DocumentScanner {
         }
     }
 
+    fun saveAndScanCameraJpeg(jpegBytes: ByteArray): ScanOutcome {
+        val outFile = File(attachmentsDir(), "${System.currentTimeMillis()}-camera.jpg")
+        return runCatching {
+            outFile.writeBytes(jpegBytes)
+            val ocr = extractWithTesseract(outFile, outFile.absolutePath)
+            ocr.copy(engineNote = "Camera photo · ${ocr.engineNote}")
+        }.getOrElse { err ->
+            ScanOutcome("", "", "Camera capture failed", "Could not save photo: ${err.message}")
+        }
+    }
+
     actual fun captureFromCamera(onResult: (ScanOutcome) -> Unit) {
         thread(start = true, isDaemon = true, name = "recurra-camera-capture") {
             val outFile = File(attachmentsDir(), "${System.currentTimeMillis()}-camera.jpg")

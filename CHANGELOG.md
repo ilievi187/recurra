@@ -2,6 +2,11 @@
 
 All notable changes to **Recurra** are documented in this file.
 
+## [1.7.0] - 2026-11-21
+
+### Added
+- **Live In-App Camera Viewfinder on Desktop (Linux & Windows):** Clicking **Take Photo** now opens a real live 15 FPS webcam preview dialog with a framing guide and **Capture & Scan** button (streaming directly from `/dev/video*` on Linux or DirectShow on Windows via `ffmpeg`), then immediately runs offline Tesseract OCR and releases the camera cleanly when closed.
+
 ## [1.6.0] - 2026-11-21
 
 ### Added
