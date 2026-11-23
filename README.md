@@ -25,7 +25,7 @@ Tracking recurring expenses shouldn't require paying another recurring subscript
 
 - **Financial Dashboard:** Normalized monthly burn, yearly projection, 7-day & 30-day due totals, active free-trial alerts, and a custom Canvas category spend donut chart.
 - **Subscriptions & Recurring Bills:** Full CRUD, search, category/status filters, sorting, weekly/bi-weekly/monthly/quarterly/semi-annual/yearly/custom-day cycles, free-trial countdowns, and one-click **Mark Paid & Advance Cycle**.
-- **Multi-Currency Offline Conversion:** Track bills in 12 currencies (USD, EUR, GBP, BGN, CHF, CAD, AUD, JPY, PLN, SEK, INR, BRL) automatically normalized into your base currency.
+- **Multi-Currency Offline Conversion:** Track bills in 12 currencies (USD, EUR, GBP, BGN, CHF, CAD, AUD, JPY, PLN, SEK, INR, BRL) with an editable, device-local exchange-rate table in Settings. Rates are entered against your chosen base currency and are never fetched online.
 - **Interactive Renewal Calendar:** Month-by-month grid showing category indicators and daily renewal totals.
 - **Warranties & Assets Vault:** Track purchase dates, warranty expiration countdown bars, serial numbers, vendors, and invoice references.
 - **12-Month Cashflow Analytics:** Spot annual renewal spikes before they hit your card, plus a full payment history log.
@@ -33,6 +33,10 @@ Tracking recurring expenses shouldn't require paying another recurring subscript
 - **Adaptive Material 3 UI:** Desktop `NavigationRail` with `Ctrl+N` quick-add shortcut, Android bottom `NavigationBar` + FAB, Light/Dark/System themes.
 
 ---
+
+### Updating exchange rates offline
+
+Open **Settings → Appearance & Base Currency** to choose your reporting currency, then **Settings → Offline Exchange Rates** to select a currency and enter how many units of the base currency equal one unit of it (for example, `1 GBP = 1.17 EUR`). Choose **Save exchange rate** to update your local totals and projections. The **Reset all rates** action asks for confirmation before restoring sample defaults. These default values are illustrative and are not live market quotes.
 
 ## Download & Installation
 
