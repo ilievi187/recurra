@@ -39,6 +39,7 @@ import io.github.ilievi187.recurra.data.VaultStorage
 import io.github.ilievi187.recurra.domain.AppSettings
 import io.github.ilievi187.recurra.domain.DefaultCurrencies
 import io.github.ilievi187.recurra.domain.ThemePreference
+import io.github.ilievi187.recurra.ui.components.OfflineRatesEditor
 import io.github.ilievi187.recurra.ui.state.RecurraUiState
 
 private const val BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/aurorauap"
@@ -108,6 +109,16 @@ fun SettingsScreen(
                         }
                     }
                 }
+            }
+        }
+
+        // Offline currency conversion rates (relative to the selected base currency)
+        item {
+            SectionCard(title = "Offline Exchange Rates") {
+                OfflineRatesEditor(
+                    settings = settings,
+                    onUpdateSettings = onUpdateSettings,
+                )
             }
         }
 
